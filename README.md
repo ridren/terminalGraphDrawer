@@ -4,7 +4,7 @@ before compilation you need to have out/ and src/ directory and move .cpp and .h
 then execute: make program
 
 usage:
-
+```
 COMMAND LINE OPTIONS:
     -h --help     prints this help
     -w --write    specifies file to write
@@ -28,3 +28,12 @@ IN PROGRAM CONTROL:
 
     if text is selected you can type normally to add characters and remove them using backspace
         keep in mind that cursor is not changing its position when you are typing
+```
+
+graph in program:
+![image](https://user-images.githubusercontent.com/95301979/154369259-f9de3f5c-b6c6-44a1-92d1-399d3ae50b9b.png)
+
+
+other graph exported to file: (green is here because my terminal is green)
+![image](https://user-images.githubusercontent.com/95301979/154369436-b7996eac-7793-4158-891e-b8c7029f5c2c.png)
+
