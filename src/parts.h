@@ -40,9 +40,10 @@ struct Box{
 struct Line{
 	std::vector<vec2> points;
 
+	bool endsWithArrow;
+
 	Line();
 	Line(const vec2& start, const vec2& end);
-		
 };
 
 struct Text{

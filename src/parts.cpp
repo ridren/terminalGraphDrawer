@@ -44,6 +44,8 @@ Line::Line(const vec2& start, const vec2& end)
 {
 	points.emplace_back(start);
 	points.emplace_back(end);
+
+	endsWithArrow = false;
 }
 	
 Text::Text() {}

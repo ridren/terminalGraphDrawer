@@ -86,6 +86,7 @@ int main(int argc, char* argv[])
 	
 			             "\tF7     - add point to a line and switch to it\n"
 			             "\tF8     - remove point from a line\n"
+			             "\tF9     - change line to an arrow and vice versa\n"
 	
 			             "\tQ      - exits program\n"
 			             "\tw      - writes diagram to \"diagram.txt\" or file specified by user (for safety reasons, it should be empty file)\n"
@@ -321,13 +322,34 @@ int main(int argc, char* argv[])
 					move(next.y, next.x);
 					if(next.y >= maxY - 1) break;
 
-					if(prev == BOTTOM || prev == TOP)
+					if(line.endsWithArrow)
 					{
-						printw("│");
+						switch(prev)
+						{
+						case BOTTOM:
+							printw("↑");
+							break;
+						case TOP:
+							printw("↓");
+							break;
+						case LEFT:
+							printw("→");
+							break;
+						case RIGHT:
+							printw("←");
+							break;
+						}
 					}
 					else
 					{
-						printw("─");
+						if(prev == BOTTOM || prev == TOP)
+						{
+							printw("│");
+						}
+						else
+						{
+							printw("─");
+						}
 					}
 				}
 
@@ -558,6 +580,14 @@ F3:
 			choosedLine = nullptr;
 			linePoint = -1;
 			
+			break;
+		//-------------
+		//changing if line is an arrow
+		case KEY_F(9):
+			if(!choosedLine) break;
+			
+			choosedLine->endsWithArrow ^= 1;
+
 			break;
 		//-------------
 		//removing text
