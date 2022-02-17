@@ -21,7 +21,7 @@ IN PROGRAM CONTROL:
     F7     - add point to a line and switch to it
     F8     - remove point from a line
     Q      - exits program
-    w      - writes graph to "graph.txt" or file specified by user (for safety reasons, it should be empty file)
+    w      - writes diagram to "diagram.txt" or file specified by user (for safety reasons, it should be empty file)
                  to be more specific it writes whatever is in 200x by 100y rectangle
     [ ]    - change box size on y axis
     { }    - change box size on x axis
@@ -30,10 +30,10 @@ IN PROGRAM CONTROL:
         keep in mind that cursor is not changing its position when you are typing
 ```
 
-graph in program:
+diagram in program:
 ![image](https://user-images.githubusercontent.com/95301979/154369259-f9de3f5c-b6c6-44a1-92d1-399d3ae50b9b.png)
 
 
-other graph exported to file: (green is here because my terminal is green)
+other diagram exported to file: (green is here because my terminal is green)
 ![image](https://user-images.githubusercontent.com/95301979/154369436-b7996eac-7793-4158-891e-b8c7029f5c2c.png)
 
