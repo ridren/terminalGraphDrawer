@@ -20,7 +20,7 @@ IN PROGRAM CONTROL:
     F6     - create text
     F7     - add point to a line and switch to it
     F8     - remove point from a line
-	F9     - change line to an arrow and vice versa
+    F9     - change line to an arrow and vice versa
     Q      - exits program
     w      - writes diagram to "diagram.txt" or file specified by user (for safety reasons, it should be empty file)
                  to be more specific it writes whatever is in 200x by 100y rectangle
