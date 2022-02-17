@@ -62,7 +62,7 @@ void drawVerticalLineFromTop(const char* top, const char* middle, const char* bo
 
 int main(int argc, char* argv[])
 {
-	std::string fileName = "graph.txt";
+	std::string fileName = "diagram.txt";
 	if(argc > 1)
 	{
 		std::string arg1 = argv[1];
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 			             "\tF8     - remove point from a line\n"
 	
 			             "\tQ      - exits program\n"
-			             "\tw      - writes graph to \"graph.txt\" or file specified by user (for safety reasons, it should be empty file)\n"
+			             "\tw      - writes graph to \"diagram.txt\" or file specified by user (for safety reasons, it should be empty file)\n"
 			             "\t         \tto be more specific it writes whatever is in 200x by 100y rectangle\n"
 		
 			             "\t[ ]    - change box size on y axis\n"

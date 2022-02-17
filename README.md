@@ -1,4 +1,4 @@
-program that allows you to draw simple graphs in the terminal and export them to files, there isnt much to add 
+program that allows you to draw simple block diagrams in the terminal and export them to files, there isnt much to add 
 
 before compilation you need to have out/ and src/ directory and move .cpp and .h files to src/
 then execute: make program
