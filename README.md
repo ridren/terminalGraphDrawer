@@ -23,7 +23,8 @@ IN PROGRAM CONTROL:
     F9     - change line to an arrow and vice versa
     Q      - exits program
     w      - writes diagram to "diagram.txt" or file specified by user (for safety reasons, it should be empty file)
-                 to be more specific it writes whatever is in 200x by 100y rectangle
+                 to be more specific it writes whatever is in 500x by 100y rectangle
+                 if your project is bigger, you should copy it directly or else it may not save correctly
     [ ]    - change box size on y axis
     { }    - change box size on x axis
 

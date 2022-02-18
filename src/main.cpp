@@ -90,7 +90,8 @@ int main(int argc, char* argv[])
 	
 			             "\tQ      - exits program\n"
 			             "\tw      - writes diagram to \"diagram.txt\" or file specified by user (for safety reasons, it should be empty file)\n"
-			             "\t         \tto be more specific it writes whatever is in 200x by 100y rectangle\n"
+                         "\t         \tto be more specific it writes whatever is in 500x by 100y rectangle\n"
+                         "\t         \tif your project is bigger, you should copy it directly or else it may not save correctly\n"
 		
 			             "\t[ ]    - change box size on y axis\n"
 			             "\t{ }    - change box size on x axis\n\n"
@@ -609,13 +610,13 @@ def:
 			{
 				std::ofstream write(fileName);
 
-				//at most 200 chars per line
-				char arr[200];
+				//at most 500 chars per line
+				char arr[500];
 				//at most 100 y lines
 				for(int i = 0; i < 100; i++)
 				{
 					move(i, 0);
-					innstr(arr, 200);
+					innstr(arr, 500);
 
 					write << arr << '\n';	
 				}
