@@ -40,4 +40,4 @@ other diagram exported to file: (green is here because my terminal is green)
 ![image](https://user-images.githubusercontent.com/95301979/154369436-b7996eac-7793-4158-891e-b8c7029f5c2c.png)
 
 video:
-https://github.com/ridren/terminalBlockDiagramDrawer
+https://www.youtube.com/watch?v=VwXoJ5pzZig
