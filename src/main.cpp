@@ -79,10 +79,11 @@ int main(int argc, char* argv[])
 	bool loadData = false;
 	std::string fileForData = "";
 
-	if(argc > 1)
+	//starting from one to ommit program name
+	for(int i = 1; i < argc; i++)
 	{
-		std::string arg1 = argv[1];
-		if("-h" == arg1 || "--help" == arg1)
+		std::string arg = argv[i];
+		if("-h" == arg || "--help" == arg)
 		{
 			std::cout << "COMMAND LINE OPTIONS: \n"
 			             "\t-h --help \tprints this help \n"
@@ -123,11 +124,12 @@ int main(int argc, char* argv[])
 		
 			return 0;
 		}
-		if("-w" == arg1 || "--write" == arg1)
+		else if("-w" == arg || "--write" == arg)
 		{
-			if(argc > 2)
+			if(i + 1 < argc)
 			{
-				fileName = argv[2];
+				fileName = argv[i + 1];
+				i++;
 			}
 			else
 			{
@@ -135,12 +137,13 @@ int main(int argc, char* argv[])
 				return -1;
 			}
 		}
-		if("-l" == arg1 || "--load" == arg1)
+		else if("-l" == arg || "--load" == arg)
 		{
-			if(argc > 2)
+			if(i + 1 < argc)
 			{
 				loadData = true;
-				fileForData = argv[2];
+				fileForData = argv[i + 1];
+				i++;
 			}
 			else
 			{
@@ -148,11 +151,11 @@ int main(int argc, char* argv[])
 				return -1;
 			}
 		}
-		if("-s" == arg1 || "--save" == arg1)
+		else if("-s" == arg || "--save" == arg)
 		{
-			if(argc > 2)
+			if(i + 1 < argc)
 			{
-				fileForData = argv[2];
+				fileForData = argv[i + 1];
 			}
 			else
 			{
