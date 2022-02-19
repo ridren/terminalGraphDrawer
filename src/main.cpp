@@ -24,6 +24,16 @@
 #define TOP 3
 #define BOTTOM 4
 
+bool loadFile(const std::string& fileToRead, 
+              std::vector<Box>& boxes, 
+              std::vector<Line>& lines, 
+              std::vector<Text>& texts);
+
+void saveToFile(const std::string& fileToWrite, 
+              std::vector<Box>& boxes, 
+              std::vector<Line>& lines, 
+              std::vector<Text>& texts);
+
 int min(int a, int b)
 {
 	return a <= b ? a : b;
@@ -60,9 +70,15 @@ void drawVerticalLineFromTop(const char* top, const char* middle, const char* bo
 	if(bottom) printw(bottom);
 }
 
+
+
 int main(int argc, char* argv[])
 {
 	std::string fileName = "diagram.txt";
+	
+	bool loadData = false;
+	std::string fileForData = "";
+
 	if(argc > 1)
 	{
 		std::string arg1 = argv[1];
@@ -70,7 +86,11 @@ int main(int argc, char* argv[])
 		{
 			std::cout << "COMMAND LINE OPTIONS: \n"
 			             "\t-h --help \tprints this help \n"
-			             "\t-w --write\tspecifies file to write \n\n"
+			             "\t-w --write\tspecifies file to write diagram as text\n"
+			             "\t-l --load \tspecifies from which file load diagram  (should be file creted by the program) \n"
+			             "\t          \t    also acts like --save \n"
+						 
+			             "\t-s --save \tspecifies to which file save the diagram so it can be loaded later\n\n"
 			
 			             "IN PROGRAM CONTROL: \n"
 			             "\tarrows - move cursor and choosed part (if any)\n"
@@ -88,11 +108,12 @@ int main(int argc, char* argv[])
 			             "\tF8     - remove point from a line\n"
 			             "\tF9     - change line to an arrow and vice versa\n"
 	
-			             "\tQ      - exits program\n"
+			             "\tQ      - exits program(it is capital Q, not q)\n"
 			             "\tw      - writes diagram to \"diagram.txt\" or file specified by user (for safety reasons, it should be empty file)\n"
-                         "\t         \tto be more specific it writes whatever is in 500x by 100y rectangle\n"
-                         "\t         \tif your project is bigger, you should copy it directly or else it may not save correctly\n"
-		
+	                     "\t         \tto be more specific it writes whatever is in 500x by 100y rectangle\n"
+	                     "\t         \tif your project is bigger, you should copy it directly or else it may not save correctly\n"
+	                     "\ts      - writes diagram data to file specified by user so that it can be loaded later\n"
+
 			             "\t[ ]    - change box size on y axis\n"
 			             "\t{ }    - change box size on x axis\n\n"
 		
@@ -114,6 +135,52 @@ int main(int argc, char* argv[])
 				return -1;
 			}
 		}
+		if("-l" == arg1 || "--load" == arg1)
+		{
+			if(argc > 2)
+			{
+				loadData = true;
+				fileForData = argv[2];
+			}
+			else
+			{
+				std::cout << "Not enough arguments\n";
+				return -1;
+			}
+		}
+		if("-s" == arg1 || "--save" == arg1)
+		{
+			if(argc > 2)
+			{
+				fileForData = argv[2];
+			}
+			else
+			{
+				std::cout << "Not enough arguments\n";
+				return -1;
+			}
+		}
+	}
+	
+	std::vector<Box> boxes;
+	Box* choosedBox = nullptr;
+
+	std::vector<Line> lines;
+	Line* choosedLine = nullptr;
+	int linePoint = -1;
+
+	std::vector<Text> texts;
+	Text* choosedText = nullptr;
+
+	vec2 cursorPos(0, 0);
+
+	if(loadData)
+	{
+		if(loadFile(fileForData, boxes, lines, texts) == false)
+		{
+			std::cout << "Could not read file\n";
+			return -1;
+		}
 	}
 
 
@@ -133,17 +200,6 @@ int main(int argc, char* argv[])
 	init_pair(CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
 	init_pair(MAGENTA_BLACK, COLOR_MAGENTA, COLOR_BLACK);
 
-	std::vector<Box> boxes;
-	Box* choosedBox = nullptr;
-
-	std::vector<Line> lines;
-	Line* choosedLine = nullptr;
-	int linePoint = -1;
-
-	std::vector<Text> texts;
-	Text* choosedText = nullptr;
-
-	vec2 cursorPos(0, 0);
 
 
 	attron(COLOR_PAIR(WHITE_BLACK));
@@ -620,6 +676,10 @@ def:
 
 					write << arr << '\n';	
 				}
+			}
+			else if(c == 's' && fileForData.size() > 0)
+			{
+				saveToFile(fileForData, boxes, lines, texts);
 			}
 		}
 	}

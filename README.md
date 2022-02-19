@@ -8,6 +8,9 @@ usage:
 COMMAND LINE OPTIONS:
     -h --help     prints this help
     -w --write    specifies file to write
+    -l --load     specifies from which file load diagram  (should be file creted by the program)
+                        also acts like --save
+    -s --save     specifies to which file save the diagram so it can be loaded later
 
 IN PROGRAM CONTROL:
     arrows - move cursor and choosed part (if any)
@@ -21,10 +24,12 @@ IN PROGRAM CONTROL:
     F7     - add point to a line and switch to it
     F8     - remove point from a line
     F9     - change line to an arrow and vice versa
-    Q      - exits program
+    Q      - exits program (it is capital Q, not q)
     w      - writes diagram to "diagram.txt" or file specified by user (for safety reasons, it should be empty file)
                  to be more specific it writes whatever is in 500x by 100y rectangle
                  if your project is bigger, you should copy it directly or else it may not save correctly
+	s      - writes diagram data to file specified by user so that it can be loaded later
+	
     [ ]    - change box size on y axis
     { }    - change box size on x axis
 
