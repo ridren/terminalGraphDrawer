@@ -28,7 +28,7 @@ IN PROGRAM CONTROL:
     w      - writes diagram to "diagram.txt" or file specified by user (for safety reasons, it should be empty file)
                  to be more specific it writes whatever is in 500x by 100y rectangle
                  if your project is bigger, you should copy it directly or else it may not save correctly
-	s      - writes diagram data to file specified by user so that it can be loaded later
+    s      - writes diagram data to file specified by user so that it can be loaded later
 	
     [ ]    - change box size on y axis
     { }    - change box size on x axis
@@ -38,6 +38,7 @@ IN PROGRAM CONTROL:
 ```
 
 diagram in program:
+
 ![image](https://user-images.githubusercontent.com/95301979/154369259-f9de3f5c-b6c6-44a1-92d1-399d3ae50b9b.png)
 
 
