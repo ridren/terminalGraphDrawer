@@ -3,19 +3,19 @@
 vec2::vec2()
 	: x(0), y(0) {}
 
-vec2::vec2(int nX, int nY)
-	: x(nX), y(nY) {}
+vec2::vec2(const int n_x, const int n_y)
+	: x(n_x), y(n_y) {}
 
-vec2 vec2::operator+(const vec2& other)
+vec2 vec2::operator+(const vec2& other) const
 {
 	return {x + other.x, y + other.y};
 }
-vec2 vec2::operator-(const vec2& other)
+vec2 vec2::operator-(const vec2& other) const 
 {
 	return {x - other.x, y - other.y};
 }
 
-void vec2::operator+=(const vec2& other)
+void vec2::operator+=(const vec2& other) 
 {
 	x += other.x;
 	y += other.y;
@@ -26,18 +26,18 @@ void vec2::operator-=(const vec2& other)
 	y -= other.y;
 }
 
-bool vec2::operator==(const vec2& other)
+bool vec2::operator==(const vec2& other) const
 {
 	return x == other.x && y == other.y;
 }
-bool vec2::operator!=(const vec2& other)
+bool vec2::operator!=(const vec2& other) const 
 {
 	return x != other.x || y != other.y;
 }
 	
 Box::Box() {}
-Box::Box(const vec2& nPos, int nWidth, int nHeight)
-	: pos(nPos), width(nWidth), height(nHeight) {}
+Box::Box(const vec2& n_pos, int n_width, int n_height)
+	: pos(n_pos), width(n_width), height(n_height) {}
 
 Line::Line() {}
 Line::Line(const vec2& start, const vec2& end)
@@ -45,16 +45,16 @@ Line::Line(const vec2& start, const vec2& end)
 	points.emplace_back(start);
 	points.emplace_back(end);
 
-	endsWithArrow = false;
+	ends_with_arrow = false;
 }
 	
 Text::Text() {}
-Text::Text(vec2 nPos, const std::string& nContent)
-	: pos(nPos), content(nContent) {}
-Text::Text(vec2 nPos, const char* nContent)
-	: pos(nPos), content(nContent) {}
+Text::Text(const vec2& n_pos, const std::string& n_content)
+	: pos(n_pos), content(n_content) {}
+Text::Text(const vec2& n_pos, const char* n_content)
+	: pos(n_pos), content(n_content) {}
 
-Box* findBoxWithPos(std::vector<Box>& v, vec2 pos)
+Box* find_Box_With_Pos(std::vector<Box>& v, const vec2& pos)
 {
 	for(unsigned int i = 0; i < v.size(); i++)
 	{
@@ -62,7 +62,7 @@ Box* findBoxWithPos(std::vector<Box>& v, vec2 pos)
 	}
 	return nullptr;
 }
-Line* findLineWithPos(std::vector<Line>& v, vec2 pos, int& index)
+Line* find_Line_With_Pos(std::vector<Line>& v, const vec2& pos, int& index)
 {
 	for(unsigned int i = 0; i < v.size(); i++)
 	{
@@ -78,7 +78,7 @@ Line* findLineWithPos(std::vector<Line>& v, vec2 pos, int& index)
 	index = -1;
 	return nullptr;
 }
-Text* findTextWithPos(std::vector<Text>& v, vec2 pos)
+Text* find_Text_With_Pos(std::vector<Text>& v, const vec2& pos)
 {
 	for(unsigned int i = 0; i < v.size(); i++)
 	{

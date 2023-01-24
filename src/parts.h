@@ -9,16 +9,16 @@ struct vec2{
 	int y;
 
 	vec2();
-	vec2(int nX, int nY);
+	vec2(const int n_x, const int n_y);
 
-	vec2 operator+(const vec2& other);
-	vec2 operator-(const vec2& other);
+	vec2 operator+(const vec2& other)  const;
+	vec2 operator-(const vec2& other)  const;
 
 	void operator+=(const vec2& other);
 	void operator-=(const vec2& other);
 
-	bool operator==(const vec2& other);
-	bool operator!=(const vec2& other);
+	bool operator==(const vec2& other) const;
+	bool operator!=(const vec2& other) const;
 };
 
 struct Box{
@@ -26,21 +26,21 @@ struct Box{
 	int width;
 	int height;
 
-	const char* TLCorner = "╔";
-	const char* TRCorner = "╗";
-	const char* BLCorner = "╚";
-	const char* BRCorner = "╝";
-	const char* straight = "═";
-	const char* vertical = "║";
+	constexpr static const char* corner_TL = "╔";
+	constexpr static const char* corner_TR = "╗";
+	constexpr static const char* corner_BL = "╚";
+	constexpr static const char* corner_BR = "╝";
+	constexpr static const char* straight  = "═";
+	constexpr static const char* vertical  = "║";
 
 	Box();
-	Box(const vec2& nPos, int nWidth, int nHeight);
+	Box(const vec2& n_pos, int n_width, int n_height);
 };
 
 struct Line{
 	std::vector<vec2> points;
 
-	bool endsWithArrow;
+	bool ends_with_arrow;
 
 	Line();
 	Line(const vec2& start, const vec2& end);
@@ -51,13 +51,13 @@ struct Text{
 	std::string content;
 
 	Text();
-	Text(vec2 nPos, const std::string& nContent);
-	Text(vec2 nPos, const char* nContent);
+	Text(const vec2& n_pos, const std::string& n_content);
+	Text(const vec2& n_pos, const char* n_content);
 };
 
-Box* findBoxWithPos(std::vector<Box>& v, vec2 pos);
-Line* findLineWithPos(std::vector<Line>& v, vec2 pos, int& index);
-Text* findTextWithPos(std::vector<Text>& v, vec2 pos);
+Box*  find_Box_With_Pos (std::vector<Box>& v,  const vec2& pos);
+Line* find_Line_With_Pos(std::vector<Line>& v, const vec2& pos, int& index);
+Text* find_Text_With_Pos(std::vector<Text>& v, const vec2& pos);
 
 template<typename T>
 int find(std::vector<T>& v, T* element)

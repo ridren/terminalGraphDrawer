@@ -8,38 +8,37 @@
 #include <iostream>
 #include <fstream>
 
+#include <cmath> //min
+
 #include "parts.h"
 
 #define DEFAULT_COLOR 0
-#define WHITE_BLACK 1
-#define RED_BLACK 2
-#define GREEN_BLACK 3
-#define BLUE_BLACK 4
-#define YELLOW_BLACK 5
-#define CYAN_BLACK 6
+#define WHITE_BLACK   1
+#define RED_BLACK     2
+#define GREEN_BLACK   3
+#define BLUE_BLACK    4  
+#define YELLOW_BLACK  5
+#define CYAN_BLACK    6
 #define MAGENTA_BLACK 7
 
-#define LEFT 1
-#define RIGHT 2
-#define TOP 3
+#define LEFT   1
+#define RIGHT  2
+#define TOP    3
 #define BOTTOM 4
 
-bool loadFile(const std::string& fileToRead, 
-              std::vector<Box>& boxes, 
-              std::vector<Line>& lines, 
-              std::vector<Text>& texts);
+#define STRING_COMPARE_2(str, opt_a, opt_b) (opt_a == str || opt_b == str)
 
-void saveToFile(const std::string& fileToWrite, 
-              std::vector<Box>& boxes, 
-              std::vector<Line>& lines, 
-              std::vector<Text>& texts);
+bool load_File(const std::string& file_to_read, 
+               std::vector<Box>&  boxes, 
+               std::vector<Line>& lines, 
+               std::vector<Text>& texts);
 
-int min(int a, int b)
-{
-	return a <= b ? a : b;
-}
+void save_To_File(const std::string& file_to_write, 
+                  std::vector<Box>&  boxes, 
+                  std::vector<Line>& lines, 
+                  std::vector<Text>& texts);
 
-void drawLine(const char* left, const char* middle, const char* right, int amount)
+void draw_Line(const char* left, const char* middle, const char* right, const int amount)
 {
 	if(left) printw(left);
 	
@@ -52,21 +51,21 @@ void drawLine(const char* left, const char* middle, const char* right, int amoun
 	if(right) printw(right);
 }
 
-void drawVerticalLineFromTop(const char* top, const char* middle, const char* bottom, int height)
+void draw_Vertical_Line_From_Top(const char* top, const char* middle, const char* bottom, const int height)
 {
-	int curX = getcurx(stdscr);
-	int curY = getcury(stdscr);
+	const int cur_x = getcurx(stdscr);
+	const int cur_y = getcury(stdscr);
 
 	if(top) printw(top);
 	for(int y = 1; y < height; y++)
 	{
 		if(middle)
 		{
-			move(curY + y, curX);
+			move(cur_y + y, cur_x);
 			printw(middle);
 		}
 	}
-	move(curY + height, curX);
+	move(cur_y + height, cur_x);
 	if(bottom) printw(bottom);
 }
 
@@ -74,16 +73,16 @@ void drawVerticalLineFromTop(const char* top, const char* middle, const char* bo
 
 int main(int argc, char* argv[])
 {
-	std::string fileName = "diagram.txt";
+	std::string file_name = "diagram.txt";
 	
-	bool loadData = false;
-	std::string fileForData = "";
+	bool load_data = false;
+	std::string file_for_data = "";
 
 	//starting from one to ommit program name
 	for(int i = 1; i < argc; i++)
 	{
-		std::string arg = argv[i];
-		if("-h" == arg || "--help" == arg)
+		const std::string arg = argv[i];
+		if(STRING_COMPARE_2(arg, "-h", "--help"))
 		{
 			std::cout << "COMMAND LINE OPTIONS: \n"
 			             "\t-h --help \tprints this help \n"
@@ -110,7 +109,7 @@ int main(int argc, char* argv[])
 			             "\tF9     - change line to an arrow and vice versa\n"
 	
 			             "\tQ      - exits program(it is capital Q, not q)\n"
-			             "\tw      - writes diagram to \"diagram.txt\" or file specified by user (for safety reasons, it should be empty file)\n"
+			             "\tw      - writes diagram to \"diagram.txt\" or file specified by user (overwrites entire file)\n"
 	                     "\t         \tto be more specific it writes whatever is in 500x by 100y rectangle\n"
 	                     "\t         \tif your project is bigger, you should copy it directly or else it may not save correctly\n"
 	                     "\ts      - writes diagram data to file specified by user so that it can be loaded later\n"
@@ -124,11 +123,11 @@ int main(int argc, char* argv[])
 		
 			return 0;
 		}
-		else if("-w" == arg || "--write" == arg)
+		else if(STRING_COMPARE_2(arg, "-w", "--write"))
 		{
 			if(i + 1 < argc)
 			{
-				fileName = argv[i + 1];
+				file_name = argv[i + 1];
 				i++;
 			}
 			else
@@ -137,12 +136,12 @@ int main(int argc, char* argv[])
 				return -1;
 			}
 		}
-		else if("-l" == arg || "--load" == arg)
+		else if(STRING_COMPARE_2(arg, "-l", "--load"))
 		{
 			if(i + 1 < argc)
 			{
-				loadData = true;
-				fileForData = argv[i + 1];
+				load_data = true;
+				file_for_data = argv[i + 1];
 				i++;
 			}
 			else
@@ -155,7 +154,7 @@ int main(int argc, char* argv[])
 		{
 			if(i + 1 < argc)
 			{
-				fileForData = argv[i + 1];
+				file_for_data = argv[i + 1];
 			}
 			else
 			{
@@ -166,20 +165,20 @@ int main(int argc, char* argv[])
 	}
 	
 	std::vector<Box> boxes;
-	Box* choosedBox = nullptr;
+	Box* choosed_box = nullptr;
 
 	std::vector<Line> lines;
-	Line* choosedLine = nullptr;
-	int linePoint = -1;
+	Line* choosed_line = nullptr;
+	int line_point = -1;
 
 	std::vector<Text> texts;
-	Text* choosedText = nullptr;
+	Text* choosed_text = nullptr;
 
-	vec2 cursorPos(0, 0);
+	vec2 cursor_pos(0, 0);
 
-	if(loadData)
+	if(load_data)
 	{
-		if(loadFile(fileForData, boxes, lines, texts) == false)
+		if(load_File(file_for_data, boxes, lines, texts) == false)
 		{
 			std::cout << "Could not read file\n";
 			return -1;
@@ -208,58 +207,58 @@ int main(int argc, char* argv[])
 	attron(COLOR_PAIR(WHITE_BLACK));
 	while(true)
 	{	
-		int maxX = getmaxx(stdscr) - 1;
-		int maxY = getmaxy(stdscr) - 1;
+		int max_x = getmaxx(stdscr) - 1;
+		int max_y = getmaxy(stdscr) - 1;
 
 		erase();
 		
 		for(auto& box : boxes)
 		{
-			if(&box == choosedBox)
+			if(&box == choosed_box)
 				attron(COLOR_PAIR(CYAN_BLACK));
 			else
 				attron(COLOR_PAIR(GREEN_BLACK));
 
-			int relativeBoxHeight = box.height + box.pos.y;
-			int relativeBoxWidth = box.width + box.pos.x;
-			for(int y = box.pos.y; y < relativeBoxHeight; y++)
+			int relative_box_height = box.height + box.pos.y;
+			int relative_box_width = box.width + box.pos.x;
+			for(int y = box.pos.y; y < relative_box_height; y++)
 			{
-				if(y >= maxY)
+				if(y >= max_y)
 					break;
 			
-				if(box.pos.x >= maxX)
+				if(box.pos.x >= max_x)
 					break;;
 				
 				move(y, box.pos.x);
 					
 				//minus two because we are omiiting corners
-				int distBetCorners = relativeBoxWidth - box.pos.x - 2; 
-				int distToEnd = maxX - box.pos.x;
-				bool firstSmaller = distBetCorners < distToEnd;
-				int smallerDist = firstSmaller ? distBetCorners : distToEnd;
+				int dist_bet_corners = relative_box_width - box.pos.x - 2; 
+				int dist_to_end = max_x - box.pos.x;
+				bool first_smaller = dist_bet_corners < dist_to_end;
+				int smaller_gist = first_smaller ? dist_bet_corners : dist_to_end;
 				
 				if(y == box.pos.y)
 				{
-					drawLine(box.TLCorner, box.straight, firstSmaller ? box.TRCorner : nullptr, smallerDist);
+					draw_Line(box.corner_TL, box.straight, first_smaller ? box.corner_TR : nullptr, smaller_gist);
 				}
-				else if(y == relativeBoxHeight - 1)
+				else if(y == relative_box_height - 1)
 				{
-					drawLine(box.BLCorner, box.straight, firstSmaller ? box.BRCorner : nullptr, smallerDist);
+					draw_Line(box.corner_BL, box.straight, first_smaller ? box.corner_BR : nullptr, smaller_gist);
 				}
 				else
 				{
-					drawLine(box.vertical, nullptr, firstSmaller ? box.vertical : nullptr, smallerDist);
+					draw_Line(box.vertical, nullptr, first_smaller ? box.vertical : nullptr, smaller_gist);
 				}
 			}
 			
-			if(&box == choosedBox)
+			if(&box == choosed_box)
 				attroff(COLOR_PAIR(CYAN_BLACK));
 			else
 				attroff(COLOR_PAIR(GREEN_BLACK));
 		} // for box in boxes
 		for(auto& line : lines)
 		{
-			if(&line == choosedLine)
+			if(&line == choosed_line)
 				attron(COLOR_PAIR(CYAN_BLACK));
 			else
 				attron(COLOR_PAIR(YELLOW_BLACK));
@@ -276,78 +275,78 @@ int main(int argc, char* argv[])
 				
 				if(current.x < next.x)
 				{
-					if(current.x >= maxX) continue;
+					if(current.x >= max_x) continue;
 
-					int distToEnd = maxX - current.x;
-					int distToPrint = next.x - 1 - current.x;
+					int dist_to_end = max_x - current.x;
+					int dist_to_print = next.x - 1 - current.x;
 
 					move(current.y, current.x);
-					if(current.y < maxY)
+					if(current.y < max_y)
 					{
 						switch(prev)
 						{
 						case TOP:
-							drawLine("└", "─", nullptr, min(distToEnd, distToPrint));
+							draw_Line("└", "─", nullptr, std::min(dist_to_end, dist_to_print));
 							break;
 						case BOTTOM:
-							drawLine("┌", "─", nullptr, min(distToEnd, distToPrint));
+							draw_Line("┌", "─", nullptr, std::min(dist_to_end, dist_to_print));
 							break;
 						default:
-							drawLine("─", "─", nullptr, min(distToEnd, distToPrint));
+							draw_Line("─", "─", nullptr, std::min(dist_to_end, dist_to_print));
 						}
 					}
 					prev = LEFT;
 				}
 				else if(current.x > next.x)
 				{
-					if(next.x >= maxX) continue;
+					if(next.x >= max_x) continue;
 					
 
-					int distToEnd = maxX - next.x;
-					int distToPrint = current.x - 1 - next.x;
+					int dist_to_end = max_x - next.x;
+					int dist_to_print = current.x - 1 - next.x;
 
-					if(current.y < maxY)
+					if(current.y < max_y)
 					{
 						move(current.y, next.x);
-						//if(current.x <= maxX)
+						//if(current.x <= max_x)
 						switch(prev)
 						{
 						case TOP:
-							drawLine(nullptr, "─", "┘", min(distToEnd, distToPrint) + 1);
+							draw_Line(nullptr, "─", "┘", std::min(dist_to_end, dist_to_print) + 1);
 							break;
 						case BOTTOM:
-							drawLine(nullptr, "─", "┐", min(distToEnd, distToPrint) + 1);
+							draw_Line(nullptr, "─", "┐", std::min(dist_to_end, dist_to_print) + 1);
 							break;
 						default:
-							drawLine(nullptr, "─", "─", min(distToEnd, distToPrint) + 1);
+							draw_Line(nullptr, "─", "─", std::min(dist_to_end, dist_to_print) + 1);
 						}
 				
 					
 					}
 					prev = RIGHT;
-					if(next.x >= maxX) continue;
+					if(next.x >= max_x) continue;
 				}
 
 				
 				//current is lower
 				if(current.y > next.y)
 				{
-					int topToBot  = current.y - next.y;
-					int distToBot = maxY - next.y; 
+					int top_to_bot  = current.y - next.y;
+					int dist_to_bot = max_y - next.y; 
 					
-					if(distToBot < 1) continue;
+					if(dist_to_bot < 1) continue;
 						
 					move(next.y, next.x);
 					switch(prev)
 					{
 					case LEFT:
-						drawVerticalLineFromTop(nullptr, "│", current.y < maxY ? "┘" : nullptr, min(topToBot, distToBot));
+						draw_Vertical_Line_From_Top(nullptr, "│", current.y < max_y ? "┘" : nullptr, std::min(top_to_bot, dist_to_bot));
 						break;
 					case RIGHT:
-						drawVerticalLineFromTop(nullptr, "│", current.y < maxY ? "└" : nullptr, min(topToBot, distToBot));
+						draw_Vertical_Line_From_Top(nullptr, "│", current.y < max_y ? "└" : nullptr, std::min(top_to_bot, dist_to_bot));
 						break;
 					default:
-						drawVerticalLineFromTop(nullptr, "│", current.y < maxY ? "│" : nullptr, min(topToBot, distToBot));
+						draw_Vertical_Line_From_Top(nullptr, "│", current.y < max_y ? "│" : nullptr, std::min(top_to_bot, dist_to_bot));
 					}
 
 					prev = BOTTOM;
@@ -355,22 +354,22 @@ int main(int argc, char* argv[])
 				//current is higher
 				else if(current.y < next.y)
 				{
-					int topToBot  = next.y - current.y;
-					int distToBot = maxY - current.y; 
+					int top_to_bot  = next.y - current.y;
+					int dist_to_bot = max_y - current.y; 
 				
-					if(distToBot < 1) continue;
+					if(dist_to_bot < 1) continue;
 				
 					move(current.y, next.x);
 					switch(prev)
 					{
 					case LEFT:
-						drawVerticalLineFromTop("┐", "│", nullptr, min(topToBot, distToBot));
+						draw_Vertical_Line_From_Top("┐", "│", nullptr, std::min(top_to_bot, dist_to_bot));
 						break;
 					case RIGHT:
-						drawVerticalLineFromTop("┌", "│", nullptr, min(topToBot, distToBot));
+						draw_Vertical_Line_From_Top("┌", "│", nullptr, std::min(top_to_bot, dist_to_bot));
 						break;
 					default:
-						drawVerticalLineFromTop("│", "│", nullptr, min(topToBot, distToBot));
+						draw_Vertical_Line_From_Top("│", "│", nullptr, std::min(top_to_bot, dist_to_bot));
 					}
 			
 					prev = TOP;
@@ -380,9 +379,9 @@ int main(int argc, char* argv[])
 				if(i == line.points.size() - 2)
 				{
 					move(next.y, next.x);
-					if(next.y >= maxY - 1) break;
+					if(next.y >= max_y - 1) break;
 
-					if(line.endsWithArrow)
+					if(line.ends_with_arrow)
 					{
 						switch(prev)
 						{
@@ -415,19 +414,19 @@ int main(int argc, char* argv[])
 
 			}// for points in line
 
-			if(&line == choosedLine)
+			if(&line == choosed_line)
 				attroff(COLOR_PAIR(CYAN_BLACK));
 			else
 				attroff(COLOR_PAIR(YELLOW_BLACK));
 		} // for line in lines
 		for(auto& text : texts)
 		{
-			if(text.pos.x + (int)text.content.length() >= maxX)
+			if(text.pos.x + (int)text.content.length() >= max_x)
 				continue;
-			if(text.pos.y > maxY)
+			if(text.pos.y > max_y)
 				continue;
 			
-			if(&text == choosedText)
+			if(&text == choosed_text)
 				attron(COLOR_PAIR(CYAN_BLACK));
 			else
 				attron(COLOR_PAIR(WHITE_BLACK));
@@ -436,16 +435,16 @@ int main(int argc, char* argv[])
 			printw(text.content.c_str());
 
 
-			if(&text == choosedText)
+			if(&text == choosed_text)
 				attroff(COLOR_PAIR(CYAN_BLACK));
 			else
 				attroff(COLOR_PAIR(WHITE_BLACK));
 
 		} // for text in texts
-		if(cursorPos.y < maxY && cursorPos.x < maxX)
+		if(cursor_pos.y < max_y && cursor_pos.x < max_x)
 		{
 			curs_set(1);
-			move(cursorPos.y, cursorPos.x);
+			move(cursor_pos.y, cursor_pos.x);
 		}
 		else
 		{
@@ -459,91 +458,91 @@ int main(int argc, char* argv[])
 		//=============
 		//MOVING
 		case KEY_UP:
-			if(cursorPos.y == 0) break;
+			if(cursor_pos.y == 0) break;
 
-			if(choosedBox)       choosedBox->pos.y--;
-			else if(choosedLine) choosedLine->points[linePoint].y--;
-			else if(choosedText) choosedText->pos.y--;
+			if(choosed_box)       choosed_box->pos.y--;
+			else if(choosed_line) choosed_line->points[line_point].y--;
+			else if(choosed_text) choosed_text->pos.y--;
 
-			cursorPos.y--;
+			cursor_pos.y--;
 			break;
 		case KEY_DOWN:
-			if(choosedBox)       choosedBox->pos.y++;
-			else if(choosedLine) choosedLine->points[linePoint].y++;
-			else if(choosedText) choosedText->pos.y++;
+			if(choosed_box)       choosed_box->pos.y++;
+			else if(choosed_line) choosed_line->points[line_point].y++;
+			else if(choosed_text) choosed_text->pos.y++;
 			
-			cursorPos.y++;
+			cursor_pos.y++;
 			break;
 		case KEY_LEFT:
-			if(cursorPos.x == 0) break;
+			if(cursor_pos.x == 0) break;
 			
-			if(choosedBox)       choosedBox->pos.x--;
-			else if(choosedLine) choosedLine->points[linePoint].x--;
-			else if(choosedText) choosedText->pos.x--;
+			if(choosed_box)       choosed_box->pos.x--;
+			else if(choosed_line) choosed_line->points[line_point].x--;
+			else if(choosed_text) choosed_text->pos.x--;
 			
-			cursorPos.x--;
+			cursor_pos.x--;
 			break;
 		case KEY_RIGHT:
-			if(choosedBox)       choosedBox->pos.x++;
-			else if(choosedLine) choosedLine->points[linePoint].x++;
-			else if(choosedText) choosedText->pos.x++;
+			if(choosed_box)       choosed_box->pos.x++;
+			else if(choosed_line) choosed_line->points[line_point].x++;
+			else if(choosed_text) choosed_text->pos.x++;
 			
-			cursorPos.x++;
+			cursor_pos.x++;
 			break;
 		//=============
 		//choosing 
 		case KEY_F(1):
 			//null everything
-			choosedBox  = nullptr;
-			choosedLine = nullptr;
-			choosedText = nullptr;
+			choosed_box  = nullptr;
+			choosed_line = nullptr;
+			choosed_text = nullptr;
 
 			//first check for boxes
-			if((choosedBox = findBoxWithPos(boxes, cursorPos)) != nullptr)
+			if((choosed_box = find_Box_With_Pos(boxes, cursor_pos)) != nullptr)
 				break;
 			
 			//then line
-			if((choosedLine = findLineWithPos(lines, cursorPos, linePoint)) != nullptr)
+			if((choosed_line = find_Line_With_Pos(lines, cursor_pos, line_point)) != nullptr)
 				break;
 			
 			//finally texts
-			choosedText = findTextWithPos(texts, cursorPos);
+			choosed_text = find_Text_With_Pos(texts, cursor_pos);
 			//if not needed
 			break;
 		//-------------
 		//unchoosing
 		case KEY_F(2):
-			choosedBox  = nullptr;
-			choosedLine = nullptr;
-			choosedText = nullptr;
+			choosed_box  = nullptr;
+			choosed_line = nullptr;
+			choosed_text = nullptr;
 			
-			linePoint = -1;
+			line_point = -1;
 			
 			break;
 		//-------------
 		//destroying
 F3:
 		case KEY_F(3):
-			if(choosedBox)
+			if(choosed_box)
 			{
-				int index = find<Box>(boxes, choosedBox);
+				int index = find<Box>(boxes, choosed_box);
 				boxes.erase(boxes.begin() + index);
-				choosedBox = nullptr;
+				choosed_box = nullptr;
 				break;
 			}
-			if(choosedLine)
+			if(choosed_line)
 			{
-				int index = find<Line>(lines, choosedLine);
+				int index = find<Line>(lines, choosed_line);
 				lines.erase(lines.begin() + index);
-				choosedLine = nullptr;
-				linePoint = -1;
+				choosed_line = nullptr;
+				line_point = -1;
 				break;
 			}
-			if(choosedText)
+			if(choosed_text)
 			{
-				int index = find<Text>(texts, choosedText);
+				int index = find<Text>(texts, choosed_text);
 				texts.erase(texts.begin() + index);
-				choosedText = nullptr;
+				choosed_text = nullptr;
 				break;
 			}
 
@@ -553,33 +552,33 @@ F3:
 		//-------------
 		//box
 		case KEY_F(4):
-			if(choosedBox || choosedLine || choosedText)
+			if(choosed_box || choosed_line || choosed_text)
 				break;
 
-			boxes.emplace_back(cursorPos, 4, 3);
+			boxes.emplace_back(cursor_pos, 4, 3);
 
-			choosedBox = &boxes.back();
+			choosed_box = &boxes.back();
 			break;
 		//-------------
 		//line
 		case KEY_F(5):
-			if(choosedBox || choosedLine || choosedText)
+			if(choosed_box || choosed_line || choosed_text)
 				break;
 			
-			lines.emplace_back(cursorPos, cursorPos + vec2(2, 0));
+			lines.emplace_back(cursor_pos, cursor_pos + vec2(2, 0));
 
-			choosedLine = &lines.back();
-			linePoint = 0;
+			choosed_line = &lines.back();
+			line_point = 0;
 			break;
 		//-------------
 		//text
 		case KEY_F(6):
-			if(choosedBox || choosedLine || choosedText)
+			if(choosed_box || choosed_line || choosed_text)
 				break;
 
-			texts.emplace_back(cursorPos, "text");
+			texts.emplace_back(cursor_pos, "text");
 
-			choosedText = &texts.back();
+			choosed_text = &texts.back();
 			break;
 		
 		//=============
@@ -587,35 +586,35 @@ F3:
 		//-------------
 		//changing box size
 		case '[':
-			if(choosedBox)
+			if(choosed_box)
 			{
-				if(choosedBox->height > 2)
-					choosedBox->height--;
+				if(choosed_box->height > 2)
+					choosed_box->height--;
 			
 				break;
 			}
 			else goto def;
 		case ']':
-			if(choosedBox)
+			if(choosed_box)
 			{
-				choosedBox->height++;
+				choosed_box->height++;
 				
 				break;
 			}
 			else goto def;
 		case '{':
-			if(choosedBox)
+			if(choosed_box)
 			{
-				if(choosedBox->width > 2)
-					choosedBox->width--;
+				if(choosed_box->width > 2)
+					choosed_box->width--;
 				
 				break;
 			}
 			else goto def;
 		case '}':
-			if(choosedBox)
+			if(choosed_box)
 			{
-				choosedBox->width++;
+				choosed_box->width++;
 				
 				break;
 			}
@@ -623,51 +622,51 @@ F3:
 		//-------------
 		//adding and removing line points
 		case KEY_F(7):
-			if(!choosedLine) break;
+			if(!choosed_line) break;
 			
-			linePoint++;
-			choosedLine->points.insert(choosedLine->points.begin() + linePoint, cursorPos);
+			line_point++;
+			choosed_line->points.insert(choosed_line->points.begin() + line_point, cursor_pos);
 
 			break;
 		case KEY_F(8):
-			if(!choosedLine) break;
+			if(!choosed_line) break;
 
 			//less than two points so delete
-			if(choosedLine->points.size() < 3) goto F3;
+			if(choosed_line->points.size() < 3) goto F3;
 		
-			choosedLine->points.erase(choosedLine->points.begin() + linePoint);
+			choosed_line->points.erase(choosed_line->points.begin() + line_point);
 			
-			choosedLine = nullptr;
-			linePoint = -1;
+			choosed_line = nullptr;
+			line_point = -1;
 			
 			break;
 		//-------------
 		//changing if line is an arrow
 		case KEY_F(9):
-			if(!choosedLine) break;
+			if(!choosed_line) break;
 			
-			choosedLine->endsWithArrow ^= 1;
+			choosed_line->ends_with_arrow ^= 1;
 
 			break;
 		//-------------
 		//removing text
 		case KEY_BACKSPACE:
-			if(choosedText && choosedText->content.size() > 0)
-				choosedText->content.pop_back();
+			if(choosed_text && choosed_text->content.size() > 0)
+				choosed_text->content.pop_back();
 			
 			break;
 		//-------------
 		//adding text
 def:
 		default:
-			if(choosedText && 
+			if(choosed_text && 
 			   c > 31 && c < 127)
-			   choosedText->content += static_cast<char>(c);
+			   choosed_text->content += static_cast<char>(c);
 			else if(c == 'Q')
 				goto end;	
 			else if(c == 'w')
 			{
-				std::ofstream write(fileName);
+				std::ofstream write(file_name);
 
 				//at most 500 chars per line
 				char arr[500];
@@ -680,9 +679,9 @@ def:
 					write << arr << '\n';	
 				}
 			}
-			else if(c == 's' && fileForData.size() > 0)
+			else if(c == 's' && file_for_data.size() > 0)
 			{
-				saveToFile(fileForData, boxes, lines, texts);
+				save_To_File(file_for_data, boxes, lines, texts);
 			}
 		}
 	}

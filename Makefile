@@ -2,7 +2,8 @@ RED := '\033[0;31m'
 YELLOW := '\033[0;33m'
 NC := '\033[0m' #no color
 
-files := out/main.o out/parts.o out/loadSave.o
+files := out/main.o out/parts.o out/load_save.o
+
 
 compileArgs = -O3 
 
@@ -35,10 +36,10 @@ out/parts.o: src/parts.cpp
 	@g++ -Wall -Wextra -pedantic ${compileArgs} -c src/parts.cpp
 	@mv parts.o out/
 
-out/loadSave.o: src/loadSave.cpp
-	@echo -e ${YELLOW}compiling loadSave.cpp${NC}
-	@g++ -Wall -Wextra -pedantic ${compileArgs} -c src/loadSave.cpp
-	@mv loadSave.o out/
+out/load_save.o: src/load_save.cpp
+	@echo -e ${YELLOW}compiling load_save.cpp${NC}
+	@g++ -Wall -Wextra -pedantic ${compileArgs} -c src/load_save.cpp
+	@mv load_save.o out/
 
 #updating files
 src/main.cpp:
@@ -47,5 +48,5 @@ src/main.cpp:
 src/parts.cpp:
 	@touch src/parts.cpp
 
-src/loadSave.cpp:
-	@touch src.loadSave.cpp
+src/load_save.cpp:
+	@touch src/load_save.cpp
