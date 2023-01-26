@@ -6,35 +6,31 @@ then execute: make program
 usage:
 ```
 COMMAND LINE OPTIONS:
-    -h --help     prints this help
-    -w --write    specifies file to write
-    -l --load     specifies from which file load diagram  (should be file creted by the program)
-                        also acts like --save
-    -s --save     specifies to which file save the diagram so it can be loaded later
-
+	-h --help 	prints this help
 IN PROGRAM CONTROL:
-    arrows - move cursor and choosed part (if any)
-    F1     - selects part (first searches for box, then for line then for text in cursor pos)
-                 box and text is selected by top left corner while line is selected wherever its points are
-    F2     - unselects part
-    F3     - removes selected part
-    F4     - create box
-    F5     - create line
-    F6     - create text
-    F7     - add point to a line and switch to it
-    F8     - remove point from a line
-    F9     - change line to an arrow and vice versa
-    Q      - exits program (it is capital Q, not q)
-    w      - writes diagram to "diagram.txt" or file specified by user (for safety reasons, it should be empty file)
-                 to be more specific it writes whatever is in 500x by 100y rectangle
-                 if your project is bigger, you should copy it directly or else it may not save correctly
-    s      - writes diagram data to file specified by user so that it can be loaded later
-	
-    [ ]    - change box size on y axis
-    { }    - change box size on x axis
+	arrows      - move cursor and choosed part (if any)
+	space/enter - (un)selects part (first searches for box, then for line then for text in cursor pos)
+	              	box and text is selected by top left corner while line is selected wherever its points are
+	              	`space` doesnt work for unselecting text, enter has to be used	d           - removes selected part
+	b           - create box
+	l           - create line
+	t           - create text
+	l           - add point to a line and switch to it
+	r           - remove point from a line
+	a           - change line to an arrow and vice versa
+	[ ]         - change box size on y axis
+	{ }         - change box size on x axis
 
-    if text is selected you can type normally to add characters and remove them using backspace
-        keep in mind that cursor is not changing its position when you are typing
+	:           - enter command mode
+	if text is selected you can type normally to add characters and remove them using backspace
+		keep in mind that cursor is not changing its position when you are typing
+COMMANDS:
+	Q           - exits program, UPPERCASE, not lowercase
+	sFILENAME   - saves current project to FILENAME so it can be loaded later
+	lFILENAME   - loads current project from FILENAME, discarding what is on the screen
+	wFILENAME   - write contents of screen to FILENAME
+	enter       - execute current command
+	escape      - discard current command
 ```
 
 diagram in program:
