@@ -86,81 +86,46 @@ int main(int argc, char* argv[])
 		{
 			std::cout << "COMMAND LINE OPTIONS: \n"
 			             "\t-h --help \tprints this help \n"
-			             "\t-w --write\tspecifies file to write diagram as text\n"
-			             "\t-l --load \tspecifies from which file load diagram  (should be file creted by the program) \n"
-			             "\t          \t    also acts like --save \n"
-						 
-			             "\t-s --save \tspecifies to which file save the diagram so it can be loaded later\n\n"
 			
 			             "IN PROGRAM CONTROL: \n"
-			             "\tarrows - move cursor and choosed part (if any)\n"
+			             "\tarrows      - move cursor and choosed part (if any)\n"
 
-			             "\tF1     - selects part (first searches for box, then for line then for text in cursor pos)\n"
-		                 "\t         \tbox and text is selected by top left corner while line is selected wherever its points are\n"
-			             "\tF2     - unselects part\n"
-			             "\tF3     - removes selected part\n"
+			             "\tspace/enter - (un)selects part (first searches for box, then for line then for text in cursor pos)\n"
+		                 "\t              \tbox and text is selected by top left corner while line is selected wherever its points are\n"
+		                 "\t              \t`space` doesnt work for unselecting text, enter has to be used"
+			             "\td           - removes selected part\n"
 	
-			             "\tF4     - create box\n"
-			             "\tF5     - create line\n"
-			             "\tF6     - create text\n"
+			             "\tb           - create box\n"
+			             "\tl           - create line\n"
+			             "\tt           - create text\n"
 	
-			             "\tF7     - add point to a line and switch to it\n"
-			             "\tF8     - remove point from a line\n"
-			             "\tF9     - change line to an arrow and vice versa\n"
-	
-			             "\tQ      - exits program(it is capital Q, not q)\n"
-			             "\tw      - writes diagram to \"diagram.txt\" or file specified by user (overwrites entire file)\n"
-	                     "\t         \tto be more specific it writes whatever is in 500x by 100y rectangle\n"
-	                     "\t         \tif your project is bigger, you should copy it directly or else it may not save correctly\n"
-	                     "\ts      - writes diagram data to file specified by user so that it can be loaded later\n"
-
-			             "\t[ ]    - change box size on y axis\n"
-			             "\t{ }    - change box size on x axis\n\n"
+			             "\tl           - add point to a line and switch to it\n"
+			             "\tr           - remove point from a line\n"
+			             "\ta           - change line to an arrow and vice versa\n"
+			             
+						 "\t[ ]         - change box size on y axis\n"
+			             "\t{ }         - change box size on x axis\n\n"
 		
+			             "\t:           - enter command mode\n"
+			             
 	
 			             "\tif text is selected you can type normally to add characters and remove them using backspace\n"
-			             "\t\tkeep in mind that cursor is not changing its position when you are typing\n";	
+			             "\t\tkeep in mind that cursor is not changing its position when you are typing\n"	
+		
+			             "COMMANDS: \n"
+			             "\tQ           - exits program, UPPERCASE, not lowercase\n"
+
+			             "\tsFILENAME   - saves current project to FILENAME so it can be loaded later\n"
+			             "\tlFILENAME   - loads current project from FILENAME, discarding what is on the screen\n"
+			             "\twFILENAME   - write contents of screen to FILENAME\n"
+			             
+						 "\tenter       - execute current command\n"
+			             "\tescape      - discard current command\n"
+
+
+			             "";
 		
 			return 0;
-		}
-		else if(STRING_COMPARE_2(arg, "-w", "--write"))
-		{
-			if(i + 1 < argc)
-			{
-				file_name = argv[i + 1];
-				i++;
-			}
-			else
-			{
-				std::cout << "Not enough arguments\n";
-				return -1;
-			}
-		}
-		else if(STRING_COMPARE_2(arg, "-l", "--load"))
-		{
-			if(i + 1 < argc)
-			{
-				load_data = true;
-				file_for_data = argv[i + 1];
-				i++;
-			}
-			else
-			{
-				std::cout << "Not enough arguments\n";
-				return -1;
-			}
-		}
-		else if("-s" == arg || "--save" == arg)
-		{
-			if(i + 1 < argc)
-			{
-				file_for_data = argv[i + 1];
-			}
-			else
-			{
-				std::cout << "Not enough arguments\n";
-				return -1;
-			}
 		}
 	}
 	
@@ -203,15 +168,16 @@ int main(int argc, char* argv[])
 	init_pair(MAGENTA_BLACK, COLOR_MAGENTA, COLOR_BLACK);
 
 
-
+	std::string command;
+	bool command_mode = false;
 	attron(COLOR_PAIR(WHITE_BLACK));
 	while(true)
 	{	
-		int max_x = getmaxx(stdscr) - 1;
-		int max_y = getmaxy(stdscr) - 1;
-
 		erase();
 		
+		const int max_x = getmaxx(stdscr) - 1;
+		const int max_y = getmaxy(stdscr) - 1;
+	
 		for(auto& box : boxes)
 		{
 			if(&box == choosed_box)
@@ -219,8 +185,8 @@ int main(int argc, char* argv[])
 			else
 				attron(COLOR_PAIR(GREEN_BLACK));
 
-			int relative_box_height = box.height + box.pos.y;
-			int relative_box_width = box.width + box.pos.x;
+			const int relative_box_height = box.height + box.pos.y;
+			const int relative_box_width = box.width + box.pos.x;
 			for(int y = box.pos.y; y < relative_box_height; y++)
 			{
 				if(y >= max_y)
@@ -232,10 +198,10 @@ int main(int argc, char* argv[])
 				move(y, box.pos.x);
 					
 				//minus two because we are omiiting corners
-				int dist_bet_corners = relative_box_width - box.pos.x - 2; 
-				int dist_to_end = max_x - box.pos.x;
-				bool first_smaller = dist_bet_corners < dist_to_end;
-				int smaller_gist = first_smaller ? dist_bet_corners : dist_to_end;
+				const int dist_bet_corners = relative_box_width - box.pos.x - 2; 
+				const int dist_to_end = max_x - box.pos.x;
+				const bool first_smaller = dist_bet_corners < dist_to_end;
+				const int smaller_gist = first_smaller ? dist_bet_corners : dist_to_end;
 				
 				if(y == box.pos.y)
 				{
@@ -277,8 +243,8 @@ int main(int argc, char* argv[])
 				{
 					if(current.x >= max_x) continue;
 
-					int dist_to_end = max_x - current.x;
-					int dist_to_print = next.x - 1 - current.x;
+					const int dist_to_end = max_x - current.x;
+					const int dist_to_print = next.x - 1 - current.x;
 
 					move(current.y, current.x);
 					if(current.y < max_y)
@@ -301,9 +267,8 @@ int main(int argc, char* argv[])
 				{
 					if(next.x >= max_x) continue;
 					
-
-					int dist_to_end = max_x - next.x;
-					int dist_to_print = current.x - 1 - next.x;
+					const int dist_to_end = max_x - next.x;
+					const int dist_to_print = current.x - 1 - next.x;
 
 					if(current.y < max_y)
 					{
@@ -418,6 +383,7 @@ int main(int argc, char* argv[])
 				attroff(COLOR_PAIR(CYAN_BLACK));
 			else
 				attroff(COLOR_PAIR(YELLOW_BLACK));
+
 		} // for line in lines
 		for(auto& text : texts)
 		{
@@ -441,6 +407,10 @@ int main(int argc, char* argv[])
 				attroff(COLOR_PAIR(WHITE_BLACK));
 
 		} // for text in texts
+		attron(COLOR_PAIR(RED_BLACK));
+		mvprintw(max_y, 0, command.c_str());
+		attroff(COLOR_PAIR(RED_BLACK));
+		
 		if(cursor_pos.y < max_y && cursor_pos.x < max_x)
 		{
 			curs_set(1);
@@ -450,6 +420,7 @@ int main(int argc, char* argv[])
 		{
 			curs_set(0);
 		}
+		
 		refresh();
 		
 		int c = getch();
@@ -457,6 +428,12 @@ int main(int argc, char* argv[])
 		{
 		//=============
 		//MOVING
+		case 'y':
+			if(command_mode)
+				goto enter_command;
+			if(choosed_text)
+				goto enter_text;
+		__attribute__((fallthrough));
 		case KEY_UP:
 			if(cursor_pos.y == 0) break;
 
@@ -466,6 +443,12 @@ int main(int argc, char* argv[])
 
 			cursor_pos.y--;
 			break;
+		case 'i':
+			if(command_mode)
+				goto enter_command;
+			if(choosed_text)
+				goto enter_text;
+		__attribute__((fallthrough));
 		case KEY_DOWN:
 			if(choosed_box)       choosed_box->pos.y++;
 			else if(choosed_line) choosed_line->points[line_point].y++;
@@ -473,6 +456,12 @@ int main(int argc, char* argv[])
 			
 			cursor_pos.y++;
 			break;
+		case 'e':
+			if(command_mode)
+				goto enter_command;
+			if(choosed_text)
+				goto enter_text;
+		__attribute__((fallthrough));
 		case KEY_LEFT:
 			if(cursor_pos.x == 0) break;
 			
@@ -482,6 +471,12 @@ int main(int argc, char* argv[])
 			
 			cursor_pos.x--;
 			break;
+		case 'o':
+			if(command_mode)
+				goto enter_command;
+			if(choosed_text)
+				goto enter_text;
+		__attribute__((fallthrough));
 		case KEY_RIGHT:
 			if(choosed_box)       choosed_box->pos.x++;
 			else if(choosed_line) choosed_line->points[line_point].x++;
@@ -490,13 +485,21 @@ int main(int argc, char* argv[])
 			cursor_pos.x++;
 			break;
 		//=============
-		//choosing 
-		case KEY_F(1):
-			//null everything
-			choosed_box  = nullptr;
-			choosed_line = nullptr;
-			choosed_text = nullptr;
-
+		//choosing
+		//if nothing choosed, choose
+		//if something choosed, unchoose
+		case ' ':
+		if(choosed_text)
+			goto enter_text;
+		goto choose;
+		case '\n':
+		if(command_mode)
+			goto parse_command;
+	choose:
+		if(choosed_box  == nullptr
+		&& choosed_line == nullptr
+		&& choosed_text == nullptr)
+		{
 			//first check for boxes
 			if((choosed_box = find_Box_With_Pos(boxes, cursor_pos)) != nullptr)
 				break;
@@ -506,33 +509,33 @@ int main(int argc, char* argv[])
 				break;
 			
 			//finally texts
+			//if not needed since if it returns nullptr we are fine 
 			choosed_text = find_Text_With_Pos(texts, cursor_pos);
-			//if not needed
+			
+			//nothing to select
 			break;
-		//-------------
-		//unchoosing
-		case KEY_F(2):
+		}
+		else
+		{
 			choosed_box  = nullptr;
 			choosed_line = nullptr;
 			choosed_text = nullptr;
 			
 			line_point = -1;
-			
 			break;
-		//-------------
-		//destroying
-F3:
-		case KEY_F(3):
+		}
+delete_element:
+		case '\t':
 			if(choosed_box)
 			{
-				int index = find<Box>(boxes, choosed_box);
+				const int index = find<Box>(boxes, choosed_box);
 				boxes.erase(boxes.begin() + index);
 				choosed_box = nullptr;
 				break;
 			}
 			if(choosed_line)
 			{
-				int index = find<Line>(lines, choosed_line);
+				const int index = find<Line>(lines, choosed_line);
 				lines.erase(lines.begin() + index);
 				choosed_line = nullptr;
 				line_point = -1;
@@ -540,19 +543,23 @@ F3:
 			}
 			if(choosed_text)
 			{
-				int index = find<Text>(texts, choosed_text);
+				const int index = find<Text>(texts, choosed_text);
 				texts.erase(texts.begin() + index);
 				choosed_text = nullptr;
 				break;
 			}
-
 			break;
 		//=============
 		//creating
 		//-------------
 		//box
-		case KEY_F(4):
-			if(choosed_box || choosed_line || choosed_text)
+		case 'b':
+			if(command_mode)
+				goto enter_command;
+			if(choosed_text)
+				goto enter_text;
+				
+			if(choosed_box || choosed_line)
 				break;
 
 			boxes.emplace_back(cursor_pos, 4, 3);
@@ -561,8 +568,12 @@ F3:
 			break;
 		//-------------
 		//line
-		case KEY_F(5):
-			if(choosed_box || choosed_line || choosed_text)
+		case 'l':
+			if(command_mode)
+				goto enter_command;
+			if(choosed_text)
+				goto enter_text;
+			if(choosed_box || choosed_line)
 				break;
 			
 			lines.emplace_back(cursor_pos, cursor_pos + vec2(2, 0));
@@ -572,8 +583,12 @@ F3:
 			break;
 		//-------------
 		//text
-		case KEY_F(6):
-			if(choosed_box || choosed_line || choosed_text)
+		case 't':
+			if(command_mode)
+				goto enter_command;
+			if(choosed_text)
+				goto enter_text;
+			if(choosed_box || choosed_line)
 				break;
 
 			texts.emplace_back(cursor_pos, "text");
@@ -586,6 +601,8 @@ F3:
 		//-------------
 		//changing box size
 		case '[':
+			if(command_mode)
+				goto enter_command;
 			if(choosed_box)
 			{
 				if(choosed_box->height > 2)
@@ -595,6 +612,8 @@ F3:
 			}
 			else goto def;
 		case ']':
+			if(command_mode)
+				goto enter_command;
 			if(choosed_box)
 			{
 				choosed_box->height++;
@@ -603,6 +622,8 @@ F3:
 			}
 			else goto def;
 		case '{':
+			if(command_mode)
+				goto enter_command;
 			if(choosed_box)
 			{
 				if(choosed_box->width > 2)
@@ -612,6 +633,8 @@ F3:
 			}
 			else goto def;
 		case '}':
+			if(command_mode)
+				goto enter_command;
 			if(choosed_box)
 			{
 				choosed_box->width++;
@@ -621,18 +644,27 @@ F3:
 			else goto def;
 		//-------------
 		//adding and removing line points
-		case KEY_F(7):
+		case 'p':
+			if(command_mode)
+				goto enter_command;
+			if(choosed_text)
+				goto enter_text;
+
 			if(!choosed_line) break;
 			
 			line_point++;
 			choosed_line->points.insert(choosed_line->points.begin() + line_point, cursor_pos);
 
 			break;
-		case KEY_F(8):
+		case 'r':
+			if(command_mode)
+				goto enter_command;
+			if(choosed_text)
+				goto enter_text;
 			if(!choosed_line) break;
 
 			//less than two points so delete
-			if(choosed_line->points.size() < 3) goto F3;
+			if(choosed_line->points.size() < 3) goto delete_element;
 		
 			choosed_line->points.erase(choosed_line->points.begin() + line_point);
 			
@@ -642,7 +674,12 @@ F3:
 			break;
 		//-------------
 		//changing if line is an arrow
-		case KEY_F(9):
+		case 'a':
+			if(command_mode)
+				goto enter_command;
+			if(choosed_text)
+				goto enter_text;
+
 			if(!choosed_line) break;
 			
 			choosed_line->ends_with_arrow ^= 1;
@@ -653,25 +690,42 @@ F3:
 		case KEY_BACKSPACE:
 			if(choosed_text && choosed_text->content.size() > 0)
 				choosed_text->content.pop_back();
-			
+			if(command_mode && command.size() > 0)
+				command.pop_back();
 			break;
+		
 		//-------------
-		//adding text
-def:
-		default:
-			if(choosed_text && 
-			   c > 31 && c < 127)
-			   choosed_text->content += static_cast<char>(c);
-			else if(c == 'Q')
-				goto end;	
-			else if(c == 'w')
-			{
-				std::ofstream write(file_name);
+		//commands
+		case ':':
+			if(choosed_text)
+				goto enter_text;
+			
+			command_mode = true;
+			break;
+		case 0x1B: //KEY_ESC
+			command_mode = false;
+			command.clear();
+			break;
 
+parse_command:
+			if(command.size() == 0)
+				break;
+			switch(command[0])
+			{
+			case 'Q':
+				goto end;		
+		
+			case 'w':
+			{
+				if(command.size() == 1)
+					break;
+
+				std::ofstream write(command.substr(1));
+	
 				//at most 500 chars per line
 				char arr[500];
 				//at most 100 y lines
-				for(int i = 0; i < 100; i++)
+				for(int i = 0; i < max_y; i++)
 				{
 					move(i, 0);
 					innstr(arr, 500);
@@ -679,9 +733,47 @@ def:
 					write << arr << '\n';	
 				}
 			}
-			else if(c == 's' && file_for_data.size() > 0)
+			break;
+			case 's':
+				if(command.size() > 1)
+					save_To_File(command.substr(1), boxes, lines, texts);
+				break;
+			case 'l':
+				if(command.size() > 1)
+				{
+					boxes.clear();
+					lines.clear();
+					texts.clear();
+					choosed_box  = nullptr;
+					choosed_line = nullptr;
+					choosed_text = nullptr;
+					load_File(command.substr(1),
+					          boxes, lines, texts);
+				}
+			}
+
+			command.clear();
+			break;
+
+		//-------------
+		//adding text
+def:
+		default:
+			if(command_mode)
 			{
-				save_To_File(file_for_data, boxes, lines, texts);
+enter_command:
+				if(c > 31 && c < 127)
+			 		command += static_cast<char>(c);
+
+				break;
+			}
+			if(choosed_text)
+			{ 
+enter_text:
+				if(c > 31 && c < 127)
+			 		choosed_text->content += static_cast<char>(c);
+
+				break;
 			}
 		}
 	}
