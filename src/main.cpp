@@ -92,14 +92,14 @@ int main(int argc, char* argv[])
 
 			             "\tspace/enter - (un)selects part (first searches for box, then for line then for text in cursor pos)\n"
 		                 "\t              \tbox and text is selected by top left corner while line is selected wherever its points are\n"
-		                 "\t              \t`space` doesnt work for unselecting text, enter has to be used"
+		                 "\t              \t`space` doesnt work for unselecting text, enter has to be used\n"
 			             "\td           - removes selected part\n"
 	
 			             "\tb           - create box\n"
 			             "\tl           - create line\n"
 			             "\tt           - create text\n"
 	
-			             "\tl           - add point to a line and switch to it\n"
+			             "\tp           - add point to a line and switch to it\n"
 			             "\tr           - remove point from a line\n"
 			             "\ta           - change line to an arrow and vice versa\n"
 			             

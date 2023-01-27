@@ -11,11 +11,12 @@ IN PROGRAM CONTROL:
 	arrows      - move cursor and choosed part (if any)
 	space/enter - (un)selects part (first searches for box, then for line then for text in cursor pos)
 	              	box and text is selected by top left corner while line is selected wherever its points are
-	              	`space` doesnt work for unselecting text, enter has to be used	d           - removes selected part
+	              	`space` doesnt work for unselecting text, enter has to be used  
+	d           - removes selected part
 	b           - create box
 	l           - create line
 	t           - create text
-	l           - add point to a line and switch to it
+	p           - add point to a line and switch to it
 	r           - remove point from a line
 	a           - change line to an arrow and vice versa
 	[ ]         - change box size on y axis
