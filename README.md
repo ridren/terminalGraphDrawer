@@ -12,7 +12,7 @@ IN PROGRAM CONTROL:
 	space/enter - (un)selects part (first searches for box, then for line then for text in cursor pos)
 	              	box and text is selected by top left corner while line is selected wherever its points are
 	              	`space` doesnt work for unselecting text, enter has to be used  
-	d           - removes selected part
+	TAB         - removes selected part
 	b           - create box
 	l           - create line
 	t           - create text
