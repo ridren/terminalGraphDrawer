@@ -73,9 +73,6 @@ void draw_Vertical_Line_From_Top(const char* top, const char* middle, const char
 
 int main(int argc, char* argv[])
 {
-	bool load_data = false;
-	std::string file_for_data = "";
-
 	//starting from one to ommit program name
 	for(int i = 1; i < argc; i++)
 	{
@@ -139,16 +136,6 @@ int main(int argc, char* argv[])
 
 	vec2 cursor_pos(0, 0);
 
-	if(load_data)
-	{
-		if(load_File(file_for_data, boxes, lines, texts) == false)
-		{
-			std::cout << "Could not read file\n";
-			return -1;
-		}
-	}
-
-
 	setlocale(LC_ALL, "");
 
 	initscr();
@@ -176,7 +163,7 @@ int main(int argc, char* argv[])
 		const int max_x = getmaxx(stdscr) - 1;
 		const int max_y = getmaxy(stdscr) - 1;
 	
-		for(auto& box : boxes)
+		for(const auto& box : boxes)
 		{
 			if(&box == choosed_box)
 				attron(COLOR_PAIR(CYAN_BLACK));
@@ -220,7 +207,7 @@ int main(int argc, char* argv[])
 			else
 				attroff(COLOR_PAIR(GREEN_BLACK));
 		} // for box in boxes
-		for(auto& line : lines)
+		for(const auto& line : lines)
 		{
 			if(&line == choosed_line)
 				attron(COLOR_PAIR(CYAN_BLACK));
@@ -232,8 +219,8 @@ int main(int argc, char* argv[])
 			//- 1 because there is no next from last one
 			for(unsigned int i = 0; i < line.points.size() - 1; i++)
 			{
-				vec2& current = line.points[i];
-				vec2& next    = line.points[i + 1];
+				const vec2& current = line.points[i];
+				const vec2& next    = line.points[i + 1];
 				
 				if(current == next) continue;
 				
@@ -383,7 +370,7 @@ int main(int argc, char* argv[])
 				attroff(COLOR_PAIR(YELLOW_BLACK));
 
 		} // for line in lines
-		for(auto& text : texts)
+		for(const auto& text : texts)
 		{
 			if(text.pos.x + (int)text.content.length() >= max_x)
 				continue;
