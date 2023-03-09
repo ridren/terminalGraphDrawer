@@ -73,8 +73,6 @@ void draw_Vertical_Line_From_Top(const char* top, const char* middle, const char
 
 int main(int argc, char* argv[])
 {
-	std::string file_name = "diagram.txt";
-	
 	bool load_data = false;
 	std::string file_for_data = "";
 

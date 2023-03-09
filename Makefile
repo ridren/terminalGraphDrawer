@@ -23,7 +23,7 @@ clear:
 #linking
 program: clear ${files}
 	@echo -e ${RED}linking program${NC}
-	@g++ -Wall -Wextra -pedantic -o drawer ${files} -pthread -lncurses
+	@g++ -Wall -Wextra -pedantic -o drawer ${files} -lncurses
 
 #compiling
 out/main.o: src/main.cpp
