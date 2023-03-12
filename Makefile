@@ -4,7 +4,6 @@ NC := '\033[0m' #no color
 
 files := out/main.o out/parts.o out/load_save.o
 
-
 compileArgs = -O3 
 
 #default
@@ -23,7 +22,7 @@ clear:
 #linking
 program: clear ${files}
 	@echo -e ${RED}linking program${NC}
-	@g++ -Wall -Wextra -pedantic -o drawer ${files} -lncurses
+	@g++ -Wall -Wextra -pedantic -o drawer ${files} -lncursesw
 
 #compiling
 out/main.o: src/main.cpp
