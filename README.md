@@ -1,7 +1,12 @@
-program that allows you to draw simple block diagrams in the terminal and export them to files, there isnt much to add 
+program for drawing simple block diagrams in the terminal and exporting them to files
 
-before compilation you need to have out/ and src/ directory and move .cpp and .h files to src/
-then execute: make program
+compilation:
+```
+git clone https://github.com/sarvl/terminalBlockDiagramDrawer
+cd terminalBlockDiagramDrawer
+mkdir out
+make program
+```
 
 usage:
 ```
