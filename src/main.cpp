@@ -673,6 +673,7 @@ delete_element:
 		//-------------
 		//removing text
 		case KEY_BACKSPACE:
+		case '\b':
 			if(choosed_text && choosed_text->content.size() > 0)
 				choosed_text->content.pop_back();
 			if(command_mode && command.size() > 0)
