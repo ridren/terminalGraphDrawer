@@ -8,25 +8,33 @@
 #include <iostream>
 #include <fstream>
 
+#include <cstring> //strcmp
 #include <cmath> //min
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #include "parts.h"
 
-#define DEFAULT_COLOR 0
-#define WHITE_BLACK   1
-#define RED_BLACK     2
-#define GREEN_BLACK   3
-#define BLUE_BLACK    4  
-#define YELLOW_BLACK  5
-#define CYAN_BLACK    6
-#define MAGENTA_BLACK 7
+#define COLOR_BOX  1
+#define COLOR_LINE 2
+#define COLOR_TEXT 3
+#define COLOR_CHOS 4
+#define COLOR_COMM 5
+
+#define PAIR_BOX   1 
+#define PAIR_LINE  2
+#define PAIR_TEXT  3
+#define PAIR_CHOS  4
+#define PAIR_COMM  5
 
 #define LEFT   1
 #define RIGHT  2
 #define TOP    3
 #define BOTTOM 4
 
-#define STRING_COMPARE_2(str, opt_a, opt_b) (opt_a == str || opt_b == str)
+#define STRING_COMPARE_2(str, opt_a, opt_b) (0 == strcmp(str, opt_a) || 0 == strcmp(str, opt_a))
 
 bool load_File(const std::string& file_to_read, 
                std::vector<Box>&  boxes, 
@@ -69,18 +77,37 @@ void draw_Vertical_Line_From_Top(const char* top, const char* middle, const char
 	if(bottom) printw(bottom);
 }
 
+void set_Color(const std::string& str, const int col_id, const int pair_id)
+{
+	int ind = 0;
+	int col[] = {0, 0, 0};
+	for(const char c : str)
+	{
+		if(c == ' ')
+			ind++;
+		else
+		{
+			col[ind] *= 10;
+			col[ind] += c - '0';
+		}
+	}
+	//std::cout << col[0] << ' ' << col[1] << ' ' << col[2] << '\n';
 
+	
+	init_color(col_id, col[0], col[1], col[2]);
+	init_pair(pair_id, col_id, COLOR_BLACK);
+}
 
 int main(int argc, char* argv[])
 {
 	//starting from one to ommit program name
 	for(int i = 1; i < argc; i++)
 	{
-		const std::string arg = argv[i];
-		if(STRING_COMPARE_2(arg, "-h", "--help"))
+		if(STRING_COMPARE_2(argv[i], "-h", "--help"))
 		{
 			std::cout << "COMMAND LINE OPTIONS: \n"
-			             "\t-h --help \tprints this help \n"
+			             "\t-h --help   \tprints this help \n"
+			             "\t-c --config \tprints help about config file\n"
 			
 			             "IN PROGRAM CONTROL: \n"
 			             "\tarrows      - move cursor and choosed part (if any)\n"
@@ -122,8 +149,74 @@ int main(int argc, char* argv[])
 		
 			return 0;
 		}
+		if(STRING_COMPARE_2(argv[i], "-c", "--config"))
+		{
+			std::cout << "config file is currently used to specify colors of each element\n"
+			             "format of the file is as follows:\n"
+			             "\tR G B\n"
+			             "\tR G B\n"
+			             "\tR G B\n"
+			             "\tR G B\n"
+			             "\tR G B\n"
+			             "\n"
+			             "R, G, B stand for numbers in the range [0, 1000]\n"
+			             "lines, in order from top to botom denote:\n"
+			             "\tcolor of the box\n"
+			             "\tcolor of the line\n"
+			             "\tcolor of the text\n"
+			             "\tcolor of the choosed element\n"
+			             "\tcolor of the command\n"
+			             "\n"
+			             "unless config file is specified exactly in the way described above, the behavior is undefined\n"
+			             "\n"
+						 "config file is located at $HOME/.config/TBDW/config.txt\n"
+			             "";
+			return 0;
+		}
+	}
+
+	setlocale(LC_ALL, "");
+	initscr();
+	cbreak();
+	noecho();
+	start_color();
+	keypad(stdscr, true);
+
+	std::string home_dir = std::string(getenv("HOME"))
+	                     + "/.config/TBDW/config.txt";
+	
+	std::fstream config;
+	config.open(home_dir, std::ios_base::in);
+
+	
+	//create default file in case it is empty
+	if(!config.is_open())
+	{
+		config.open(home_dir, std::ios_base::out);
+		
+		config << "0 1000 0\n"
+		          "1000 1000 0\n"
+		          "1000 1000 1000\n"
+		          "0 1000 1000\n"
+		          "1000 0 0\n";
+		
+		config.close();
+		config.open(home_dir, std::ios_base::in);
 	}
 	
+	
+	std::string line;
+	std::getline(config, line);
+	set_Color(line, COLOR_BOX,  PAIR_BOX);
+	std::getline(config, line);
+	set_Color(line, COLOR_LINE, PAIR_LINE);
+	std::getline(config, line);
+	set_Color(line, COLOR_TEXT, PAIR_TEXT);
+	std::getline(config, line);
+	set_Color(line, COLOR_CHOS, PAIR_CHOS);
+	std::getline(config, line);
+	set_Color(line, COLOR_COMM, PAIR_COMM);
+
 	std::vector<Box> boxes;
 	Box* choosed_box = nullptr;
 
@@ -136,26 +229,9 @@ int main(int argc, char* argv[])
 
 	vec2 cursor_pos(0, 0);
 
-	setlocale(LC_ALL, "");
-
-	initscr();
-	cbreak();
-	noecho();
-	start_color();
-	keypad(stdscr, true);
 	
-	init_pair(WHITE_BLACK, COLOR_WHITE, COLOR_BLACK);
-	init_pair(RED_BLACK, COLOR_RED, COLOR_BLACK);
-	init_pair(GREEN_BLACK, COLOR_GREEN, COLOR_BLACK);
-	init_pair(BLUE_BLACK, COLOR_BLUE, COLOR_BLACK);
-	init_pair(YELLOW_BLACK, COLOR_YELLOW, COLOR_BLACK);
-	init_pair(CYAN_BLACK, COLOR_CYAN, COLOR_BLACK);
-	init_pair(MAGENTA_BLACK, COLOR_MAGENTA, COLOR_BLACK);
-
-
 	std::string command;
 	bool command_mode = false;
-	attron(COLOR_PAIR(WHITE_BLACK));
 	while(true)
 	{	
 		erase();
@@ -166,9 +242,9 @@ int main(int argc, char* argv[])
 		for(const auto& box : boxes)
 		{
 			if(&box == choosed_box)
-				attron(COLOR_PAIR(CYAN_BLACK));
+				attron(COLOR_PAIR(PAIR_CHOS));
 			else
-				attron(COLOR_PAIR(GREEN_BLACK));
+				attron(COLOR_PAIR(PAIR_BOX));
 
 			const int relative_box_height = box.height + box.pos.y;
 			const int relative_box_width = box.width + box.pos.x;
@@ -203,16 +279,16 @@ int main(int argc, char* argv[])
 			}
 			
 			if(&box == choosed_box)
-				attroff(COLOR_PAIR(CYAN_BLACK));
+				attroff(COLOR_PAIR(PAIR_CHOS));
 			else
-				attroff(COLOR_PAIR(GREEN_BLACK));
+				attroff(COLOR_PAIR(PAIR_BOX));
 		} // for box in boxes
 		for(const auto& line : lines)
 		{
 			if(&line == choosed_line)
-				attron(COLOR_PAIR(CYAN_BLACK));
+				attron(COLOR_PAIR(PAIR_CHOS));
 			else
-				attron(COLOR_PAIR(YELLOW_BLACK));
+				attron(COLOR_PAIR(PAIR_LINE));
 
 			int prev = 0;
 
@@ -365,9 +441,9 @@ int main(int argc, char* argv[])
 			}// for points in line
 
 			if(&line == choosed_line)
-				attroff(COLOR_PAIR(CYAN_BLACK));
+				attroff(COLOR_PAIR(PAIR_CHOS));
 			else
-				attroff(COLOR_PAIR(YELLOW_BLACK));
+				attroff(COLOR_PAIR(PAIR_LINE));
 
 		} // for line in lines
 		for(const auto& text : texts)
@@ -378,23 +454,23 @@ int main(int argc, char* argv[])
 				continue;
 			
 			if(&text == choosed_text)
-				attron(COLOR_PAIR(CYAN_BLACK));
+				attron(COLOR_PAIR(PAIR_CHOS));
 			else
-				attron(COLOR_PAIR(WHITE_BLACK));
+				attron(COLOR_PAIR(PAIR_TEXT));
 			
 			move(text.pos.y, text.pos.x);
 			printw(text.content.c_str());
 
 
 			if(&text == choosed_text)
-				attroff(COLOR_PAIR(CYAN_BLACK));
+				attroff(COLOR_PAIR(PAIR_CHOS));
 			else
-				attroff(COLOR_PAIR(WHITE_BLACK));
+				attroff(COLOR_PAIR(PAIR_TEXT));
 
 		} // for text in texts
-		attron(COLOR_PAIR(RED_BLACK));
+		attron(COLOR_PAIR(PAIR_COMM));
 		mvprintw(max_y, 0, command.c_str());
-		attroff(COLOR_PAIR(RED_BLACK));
+		attroff(COLOR_PAIR(PAIR_COMM));
 		
 		if(cursor_pos.y < max_y && cursor_pos.x < max_x)
 		{

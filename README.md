@@ -11,7 +11,8 @@ make program
 usage:
 ```
 COMMAND LINE OPTIONS:
-	-h --help 	prints this help
+	-h --help   	prints this help
+	-c --config 	prints help about config file 
 IN PROGRAM CONTROL:
 	arrows      - move cursor and choosed part (if any)
 	space/enter - (un)selects part (first searches for box, then for line then for text in cursor pos)
@@ -44,7 +45,7 @@ diagram in program:
 ![image](https://user-images.githubusercontent.com/95301979/154369259-f9de3f5c-b6c6-44a1-92d1-399d3ae50b9b.png)
 
 
-other diagram exported to file: (green is here because my terminal is green)
+other diagram exported to file: 
 ![image](https://user-images.githubusercontent.com/95301979/154369436-b7996eac-7793-4158-891e-b8c7029f5c2c.png)
 
 video:
