@@ -136,6 +136,8 @@ int main(int argc, char* argv[])
 		
 			             "COMMANDS: \n"
 			             "\tQ           - exits program, UPPERCASE, not lowercase\n"
+			             "\tCLEAR       - deletes screen contents\n"
+
 
 			             "\tsFILENAME   - saves current project to FILENAME so it can be loaded later\n"
 			             "\tlFILENAME   - loads current project from FILENAME, discarding what is on the screen\n"
@@ -812,8 +814,22 @@ parse_command:
 					load_File(command.substr(1),
 					          boxes, lines, texts);
 				}
-			}
+				break;
+			case 'C':
+				if("CLEAR" == command)
+				{
+					boxes.clear();
+					lines.clear();
+					texts.clear();
+					choosed_box  = nullptr;
+					choosed_line = nullptr;
+					choosed_text = nullptr;
+				}
 
+				break;
+			}
+			
+			command_mode = false;
 			command.clear();
 			break;
 

@@ -33,6 +33,7 @@ IN PROGRAM CONTROL:
 		keep in mind that cursor is not changing its position when you are typing
 COMMANDS:
 	Q           - exits program, UPPERCASE, not lowercase
+	CLEAR       - deletes screen contents
 	sFILENAME   - saves current project to FILENAME so it can be loaded later
 	lFILENAME   - loads current project from FILENAME, discarding what is on the screen
 	wFILENAME   - write contents of screen to FILENAME
