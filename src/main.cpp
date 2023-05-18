@@ -41,15 +41,15 @@ int min(int a, int b)
 
 void drawLine(const char* left, const char* middle, const char* right, int amount)
 {
-	if(left) printw(left);
+	if(left) printw("%s", left);
 	
 	for(int x = 0; x < amount; x++)
 	{
-		if(middle) printw(middle);
+		if(middle) printw("%s", middle);
 		else printw(" ");
 	}
 
-	if(right) printw(right);
+	if(right) printw("%s", right);
 }
 
 void drawVerticalLineFromTop(const char* top, const char* middle, const char* bottom, int height)
@@ -57,17 +57,17 @@ void drawVerticalLineFromTop(const char* top, const char* middle, const char* bo
 	int curX = getcurx(stdscr);
 	int curY = getcury(stdscr);
 
-	if(top) printw(top);
+	if(top) printw("%s", top);
 	for(int y = 1; y < height; y++)
 	{
 		if(middle)
 		{
 			move(curY + y, curX);
-			printw(middle);
+			printw("%s", middle);
 		}
 	}
 	move(curY + height, curX);
-	if(bottom) printw(bottom);
+	if(bottom) printw("%s", bottom);
 }
 
 
@@ -430,7 +430,7 @@ int main(int argc, char* argv[])
 				attron(COLOR_PAIR(WHITE_BLACK));
 			
 			move(text.pos.y, text.pos.x);
-			printw(text.content.c_str());
+			printw("%s", text.content.c_str());
 
 
 			if(&text == choosedText)
