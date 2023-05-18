@@ -489,6 +489,7 @@ int main(int argc, char* argv[])
 			break;
 		//=============
 		//choosing 
+choose:
 		case KEY_F(1):
 			//null everything
 			choosedBox  = nullptr;
@@ -508,6 +509,15 @@ int main(int argc, char* argv[])
 			//if not needed
 			break;
 		//-------------
+			
+		case 10: // Enter key 
+			// if nothing is choosen
+			// select part under curson 
+			// else act as unchoosing
+			if(!choosedBox && !choosedLine && !choosedText)
+				goto choose;
+				
+			[[fallthrough]];
 		//unchoosing
 		case KEY_F(2):
 			choosedBox  = nullptr;
@@ -519,7 +529,8 @@ int main(int argc, char* argv[])
 			break;
 		//-------------
 		//destroying
-F3:
+delete_selected:
+		case 27: // ESC key
 		case KEY_F(3):
 			if(choosedBox)
 			{
@@ -630,7 +641,7 @@ F3:
 			if(!choosedLine) break;
 
 			//less than two points so delete
-			if(choosedLine->points.size() < 3) goto F3;
+			if(choosedLine->points.size() < 3) goto delete_selected;
 		
 			choosedLine->points.erase(choosedLine->points.begin() + linePoint);
 			
