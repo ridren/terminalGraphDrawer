@@ -497,7 +497,7 @@ choose:
 			choosedText = nullptr;
 
 			//first check for boxes
-			if((choosedBox = findBoxWithPos(boxes, cursorPos)) != nullptr)
+			if((choosedBox = findBoxAtPos(boxes, cursorPos)) != nullptr)
 				break;
 			
 			//then line
