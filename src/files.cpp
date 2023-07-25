@@ -1,3 +1,5 @@
+#include <ncurses.h>
+
 #include <fstream>
 
 #include <vector>
@@ -161,3 +163,77 @@ void save_To_File(const std::string& file_to_write,
 		write << '\n';
 	}
 }
+
+//SHARED BETWEEN FILES 
+#define COLOR_BOX  1
+#define COLOR_LINE 2
+#define COLOR_TEXT 3
+#define COLOR_CHOS 4
+#define COLOR_COMM 5
+#define PAIR_BOX   1 
+#define PAIR_LINE  2
+#define PAIR_TEXT  3
+#define PAIR_CHOS  4
+#define PAIR_COMM  5
+
+void set_Color(const std::string& str, const int col_id, const int pair_id);
+void load_Config()
+{
+	std::string home_dir = std::string(getenv("HOME"))
+	                     + "/.config/TBDW/config.txt";
+	
+	std::fstream config;
+	config.open(home_dir, std::ios_base::in);
+
+	
+	//create default file in case it is empty
+	if(!config.is_open())
+	{
+		config.open(home_dir, std::ios_base::out);
+		
+		config << "0 1000 0\n"
+		          "1000 1000 0\n"
+		          "1000 1000 1000\n"
+		          "0 1000 1000\n"
+		          "1000 0 0\n";
+		
+		config.close();
+		config.open(home_dir, std::ios_base::in);
+	}
+	
+	
+	std::string line;
+	std::getline(config, line);
+	set_Color(line, COLOR_BOX,  PAIR_BOX);
+	std::getline(config, line);
+	set_Color(line, COLOR_LINE, PAIR_LINE);
+	std::getline(config, line);
+	set_Color(line, COLOR_TEXT, PAIR_TEXT);
+	std::getline(config, line);
+	set_Color(line, COLOR_CHOS, PAIR_CHOS);
+	std::getline(config, line);
+	set_Color(line, COLOR_COMM, PAIR_COMM);
+	config.close();
+}
+
+void set_Color(const std::string& str, const int col_id, const int pair_id)
+{
+	int ind = 0;
+	int col[] = {0, 0, 0};
+	for(const char c : str)
+	{
+		if(c == ' ')
+			ind++;
+		else
+		{
+			col[ind] *= 10;
+			col[ind] += c - '0';
+		}
+	}
+	//std::cout << col[0] << ' ' << col[1] << ' ' << col[2] << '\n';
+
+	
+	init_color(col_id, col[0], col[1], col[2]);
+	init_pair(pair_id, col_id, COLOR_BLACK);
+}
+
