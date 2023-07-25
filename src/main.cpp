@@ -126,8 +126,11 @@ int main(int argc, char* argv[])
 			             "\ta           - change line to an arrow and vice versa\n"
 			             
 						 "\t[ ]         - change box size on y axis\n"
-			             "\t{ }         - change box size on x axis\n\n"
+			             "\t{ }         - change box size on x axis\n"
 		
+			             "\tc           - copy selected object\n"
+			             "\tv           - paste copied object\n\n"
+
 			             "\t:           - enter command mode\n"
 			             
 	
@@ -231,6 +234,12 @@ int main(int argc, char* argv[])
 
 	vec2 cursor_pos(0, 0);
 
+	
+	Box copied_box;
+	Line copied_line;
+	int copied_line_point = -1;
+	Text copied_text;
+	int copied_type = 0;
 	
 	std::string command;
 	bool command_mode = false;
@@ -547,6 +556,56 @@ int main(int argc, char* argv[])
 			
 			cursor_pos.x++;
 			break;
+		//=============
+		//copy and pasting
+		case 'c':
+			if(choosed_box)
+			{
+				copied_box = *choosed_box;
+				copied_box.pos -= cursor_pos;
+				copied_type = 1;
+			}
+			else if(choosed_line)
+			{
+				copied_line = *choosed_line;
+				copied_line_point = line_point;
+				for(vec2& p : copied_line.points)
+					p -= cursor_pos;
+				copied_type = 2;
+			}
+			else if(choosed_text)
+			{
+				copied_text = *choosed_text;
+				copied_text.pos -= cursor_pos;
+				copied_type = 3;
+			}
+			break;
+		case 'v':
+			switch(copied_type)
+			{
+			case 1:
+				boxes.emplace_back(copied_box);
+				boxes.back().pos += cursor_pos; 
+				choosed_box = &boxes.back();
+				break;
+			case 2:
+				lines.emplace_back(copied_line);
+				for(vec2& p : lines.back().points)
+					p += cursor_pos;
+				choosed_line = &lines.back();
+				line_point = copied_line_point;
+				break;
+
+			case 3:
+				texts.emplace_back(copied_text);
+				texts.back().pos += cursor_pos; 
+				choosed_text = &texts.back();
+				break;
+			default:
+				break;
+			}
+			break;
+
 		//=============
 		//choosing
 		//if nothing choosed, choose

@@ -27,6 +27,8 @@ IN PROGRAM CONTROL:
 	a           - change line to an arrow and vice versa
 	[ ]         - change box size on y axis
 	{ }         - change box size on x axis
+	c           - copy selected object
+	v           - paste copied object
 
 	:           - enter command mode
 	if text is selected you can type normally to add characters and remove them using backspace
