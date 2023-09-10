@@ -16,7 +16,7 @@ COMMAND LINE OPTIONS:
 IN PROGRAM CONTROL:
 	arrows      - move cursor and choosed part (if any)
 	space/enter - (un)selects part (first searches for box, then for line then for text in cursor pos)
-	              	box and text is selected by top left corner while line is selected wherever its points are
+	              	box and text are selected by top left corner while line is selected wherever its points are
 	              	`space` doesnt work for unselecting text, enter has to be used  
 	TAB         - removes selected part
 	b           - create box
@@ -31,8 +31,8 @@ IN PROGRAM CONTROL:
 	v/\         - paste copied object
 
 	:           - enter command mode
-	if text is selected you can type normally to add characters and remove them using backspace
-		keep in mind that cursor is not changing its position when you are typing
+	if text is selected, characters are added/removed via regular typing/using backspace
+		keep in mind that cursor is not changing its position while chars are added/removed
 COMMANDS:
 	Q           - exits program, UPPERCASE, not lowercase
 	CLEAR       - deletes screen contents

@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 			             "\tarrows      - move cursor and choosed part (if any)\n"
 
 			             "\tspace/enter - (un)selects part (first searches for box, then for line then for text in cursor pos)\n"
-		                 "\t              \tbox and text is selected by top left corner while line is selected wherever its points are\n"
+		                 "\t              \tbox and text are selected by top left corner while line is selected wherever its points are\n"
 		                 "\t              \t`space` doesnt work for unselecting text, enter has to be used\n"
 			             "\tTAB         - removes selected part\n"
 	
@@ -94,8 +94,8 @@ int main(int argc, char* argv[])
 			             "\t:           - enter command mode\n"
 			             
 	
-			             "\tif text is selected you can type normally to add characters and remove them using backspace\n"
-			             "\t\tkeep in mind that cursor is not changing its position when you are typing\n"	
+			             "\tif text is selected, characters are added/removed via regular typing/using backspace\n"
+			             "\t\tkeep in mind that cursor is not changing its position while chars are added/removed\n"	
 		
 			             "COMMANDS: \n"
 			             "\tQ           - exits program, UPPERCASE, not lowercase\n"
@@ -160,6 +160,8 @@ int main(int argc, char* argv[])
 	std::vector<Text> texts;
 	Text* choosed_text = nullptr;
 
+	vec2* choosed = nullptr;
+
 	vec2 cursor_pos(0, 0);
 
 	
@@ -168,9 +170,13 @@ int main(int argc, char* argv[])
 	int copied_line_point = -1;
 	Text copied_text;
 	int copied_type = 0;
+
+	std::vector<vec2*> to_move;
+	//0, 0 is TL of screen, hard to imagine someone having 1M x 1M screen
+	vec2 to_move_tl(1'000'000, 1'000'000);
 	
 	std::string command;
-	bool command_mode = false;
+	bool mode_command = false;
 	while(true)
 	{	
 		erase();
@@ -250,60 +256,60 @@ int main(int argc, char* argv[])
 		//=============
 		//MOVING
 		case 'y':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_text)
 				goto enter_text;
 		__attribute__((fallthrough));
 		case KEY_UP:
 			if(cursor_pos.y == 0) break;
-
-			if(choosed_box)       choosed_box->pos.y--;
-			else if(choosed_line) choosed_line->points[line_point].y--;
-			else if(choosed_text) choosed_text->pos.y--;
-
 			cursor_pos.y--;
+
+			if(choosed)
+				choosed->y--;
+
 			break;
 		case 'i':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_text)
 				goto enter_text;
 		__attribute__((fallthrough));
 		case KEY_DOWN:
-			if(choosed_box)       choosed_box->pos.y++;
-			else if(choosed_line) choosed_line->points[line_point].y++;
-			else if(choosed_text) choosed_text->pos.y++;
-			
 			cursor_pos.y++;
+
+			if(choosed)
+				choosed->y++;
+			
 			break;
 		case 'e':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_text)
 				goto enter_text;
 		__attribute__((fallthrough));
 		case KEY_LEFT:
 			if(cursor_pos.x == 0) break;
-			
-			if(choosed_box)       choosed_box->pos.x--;
-			else if(choosed_line) choosed_line->points[line_point].x--;
-			else if(choosed_text) choosed_text->pos.x--;
-			
+
 			cursor_pos.x--;
+			
+			if(choosed)
+				choosed->x--;
+			
 			break;
 		case 'o':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_text)
 				goto enter_text;
 		__attribute__((fallthrough));
 		case KEY_RIGHT:
-			if(choosed_box)       choosed_box->pos.x++;
-			else if(choosed_line) choosed_line->points[line_point].x++;
-			else if(choosed_text) choosed_text->pos.x++;
-			
+
 			cursor_pos.x++;
+			
+			if(choosed)
+				choosed->x++;
+
 			break;
 		//=============
 		//copy and pasting
@@ -312,7 +318,7 @@ int main(int argc, char* argv[])
 				goto enter_text;
 			__attribute__((fallthrough));
 		case '\'':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_box)
 			{
@@ -340,7 +346,7 @@ int main(int argc, char* argv[])
 				goto enter_text;
 			__attribute__((fallthrough));
 		case '\\':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			switch(copied_type)
 			{
@@ -376,30 +382,40 @@ int main(int argc, char* argv[])
 			goto enter_text;
 		goto choose;
 		case '\n':
-		if(command_mode)
+		if(mode_command)
 			goto parse_command;
 	choose:
-		if(choosed_box  == nullptr
-		&& choosed_line == nullptr
-		&& choosed_text == nullptr)
+		if(choosed == nullptr)
 		{
 			//first check for boxes
 			if((choosed_box = find_Box_With_Pos(boxes, cursor_pos)) != nullptr)
+			{
+				choosed = &choosed_box->pos;
 				break;
+			}
 			
 			//then line
 			if((choosed_line = find_Line_With_Pos(lines, cursor_pos, line_point)) != nullptr)
+			{
+				choosed = &choosed_line->points[line_point];
 				break;
+			}
 			
 			//finally texts
-			//if not needed since if it returns nullptr we are fine 
+			//if not needed since if it returns nullptr it is fine 
 			choosed_text = find_Text_With_Pos(texts, cursor_pos);
+			if(choosed_text)
+			{
+				choosed = &choosed_text->pos;
+				break;
+			}
 			
 			//nothing to select
 			break;
 		}
 		else
 		{
+			choosed      = nullptr;
 			choosed_box  = nullptr;
 			choosed_line = nullptr;
 			choosed_text = nullptr;
@@ -407,8 +423,20 @@ int main(int argc, char* argv[])
 			line_point = -1;
 			break;
 		}
+		//add currently choosed to list of to move
+		case '`':
+			if(choosed)
+			{
+				to_move.emplace_back(choosed);
+				if(choosed->x < to_move_tl.x)
+					to_move_tl.x = choosed->x;
+				if(choosed->y < to_move_tl.y)
+					to_move_tl.y = choosed->y;
+			}
+			break;
 delete_element:
 		case '\t':
+			choosed = nullptr;
 			if(choosed_box)
 			{
 				const int index = find<Box>(boxes, choosed_box);
@@ -416,7 +444,7 @@ delete_element:
 				choosed_box = nullptr;
 				break;
 			}
-			if(choosed_line)
+			else if(choosed_line)
 			{
 				const int index = find<Line>(lines, choosed_line);
 				lines.erase(lines.begin() + index);
@@ -424,7 +452,7 @@ delete_element:
 				line_point = -1;
 				break;
 			}
-			if(choosed_text)
+			else if(choosed_text)
 			{
 				const int index = find<Text>(texts, choosed_text);
 				texts.erase(texts.begin() + index);
@@ -437,7 +465,7 @@ delete_element:
 		//-------------
 		//box
 		case 'b':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_text)
 				goto enter_text;
@@ -446,13 +474,14 @@ delete_element:
 				break;
 
 			boxes.emplace_back(cursor_pos, 4, 3);
-
+			
 			choosed_box = &boxes.back();
+			choosed = &choosed_box->pos; 
 			break;
 		//-------------
 		//line
 		case 'l':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_text)
 				goto enter_text;
@@ -463,11 +492,12 @@ delete_element:
 
 			choosed_line = &lines.back();
 			line_point = 0;
+			choosed = &choosed_line->points[0];
 			break;
 		//-------------
 		//text
 		case 't':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_text)
 				goto enter_text;
@@ -477,6 +507,7 @@ delete_element:
 			texts.emplace_back(cursor_pos, "text");
 
 			choosed_text = &texts.back();
+			choosed = &choosed_text->pos;
 			break;
 		
 		//=============
@@ -484,7 +515,7 @@ delete_element:
 		//-------------
 		//changing box size
 		case '[':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_box)
 			{
@@ -495,7 +526,7 @@ delete_element:
 			}
 			else goto def;
 		case ']':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_box)
 			{
@@ -505,7 +536,7 @@ delete_element:
 			}
 			else goto def;
 		case '{':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_box)
 			{
@@ -516,7 +547,7 @@ delete_element:
 			}
 			else goto def;
 		case '}':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_box)
 			{
@@ -528,7 +559,7 @@ delete_element:
 		//-------------
 		//adding and removing line points
 		case 'p':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_text)
 				goto enter_text;
@@ -537,10 +568,11 @@ delete_element:
 			
 			line_point++;
 			choosed_line->points.insert(choosed_line->points.begin() + line_point, cursor_pos);
+			choosed = &choosed_line->points[line_point];
 
 			break;
 		case 'r':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_text)
 				goto enter_text;
@@ -552,13 +584,14 @@ delete_element:
 			choosed_line->points.erase(choosed_line->points.begin() + line_point);
 			
 			choosed_line = nullptr;
+			choosed = nullptr;
 			line_point = -1;
 			
 			break;
 		//-------------
 		//changing if line is an arrow
 		case 'a':
-			if(command_mode)
+			if(mode_command)
 				goto enter_command;
 			if(choosed_text)
 				goto enter_text;
@@ -574,7 +607,7 @@ delete_element:
 		case '\b':
 			if(choosed_text && choosed_text->content.size() > 0)
 				choosed_text->content.pop_back();
-			if(command_mode && command.size() > 0)
+			if(mode_command && command.size() > 0)
 				command.pop_back();
 			break;
 		
@@ -584,10 +617,10 @@ delete_element:
 			if(choosed_text)
 				goto enter_text;
 			
-			command_mode = true;
+			mode_command = true;
 			break;
 		case 0x1B: //KEY_ESC
-			command_mode = false;
+			mode_command = false;
 			command.clear();
 			break;
 
@@ -647,9 +680,29 @@ parse_command:
 				}
 
 				break;
+			case 'M':
+				if("MMV" == command)
+				{
+					//everything is placed relative to the cursor the way it is relative to the to_move_tl
+
+					for(vec2* vp : to_move)
+					{
+						vec2 const offset = *vp - to_move_tl;
+						*vp = offset + cursor_pos;
+					}
+					to_move.clear();
+					to_move_tl.x = 1'000'000;
+					to_move_tl.y = 1'000'000;
+				}
+				if("MCL" == command)
+				{
+					to_move.clear();
+					to_move_tl.x = 1'000'000;
+					to_move_tl.y = 1'000'000;
+				}
 			}
 			
-			command_mode = false;
+			mode_command = false;
 			command.clear();
 			break;
 
@@ -657,7 +710,7 @@ parse_command:
 		//adding text
 def:
 		default:
-			if(command_mode)
+			if(mode_command)
 			{
 enter_command:
 				if(c > 31 && c < 127)
