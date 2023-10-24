@@ -27,10 +27,7 @@ void draw_Line(const char* left, const char* middle, const char* right, const in
 	if(left) printw(left);
 	
 	for(int x = 0; x < amount; x++)
-	{
-		if(middle) printw(middle);
-		else printw(" ");
-	}
+		printw(middle);
 
 	if(right) printw(right);
 }
@@ -72,19 +69,24 @@ void render_Box(const Box& box, const int max_x, const int max_y)
 		const int dist_bet_corners = relative_box_width - box.pos.x - 2; 
 		const int dist_to_end = max_x - box.pos.x;
 		const bool first_smaller = dist_bet_corners < dist_to_end;
-		const int smaller_gist = first_smaller ? dist_bet_corners : dist_to_end;
+		const int smaller_dist = first_smaller ? dist_bet_corners : dist_to_end;
 		
 		if(y == box.pos.y)
 		{
-			draw_Line(box.corner_TL, box.straight, first_smaller ? box.corner_TR : nullptr, smaller_gist);
+			draw_Line(box.corner_TL, box.straight, first_smaller ? box.corner_TR : nullptr, smaller_dist);
 		}
 		else if(y == relative_box_height - 1)
 		{
-			draw_Line(box.corner_BL, box.straight, first_smaller ? box.corner_BR : nullptr, smaller_gist);
+			draw_Line(box.corner_BL, box.straight, first_smaller ? box.corner_BR : nullptr, smaller_dist);
 		}
 		else
 		{
-			draw_Line(box.vertical, nullptr, first_smaller ? box.vertical : nullptr, smaller_gist);
+			printw(box.vertical);
+			if(first_smaller)
+			{
+				move(y, box.pos.x + smaller_dist + 1);
+				printw(box.vertical);
+			}
 		}
 	}
 }

@@ -146,7 +146,13 @@ int main(int argc, char* argv[])
 	noecho();
 	start_color();
 	keypad(stdscr, true);
+	mousemask(BUTTON1_PRESSED 
+	        | BUTTON1_RELEASED
+	        | BUTTON1_CLICKED
+	        | REPORT_MOUSE_POSITION, NULL);
 
+	// Makes the terminal report mouse movement events
+	printf("\033[?1003h\n");
 
 	load_Config();
 
@@ -177,6 +183,7 @@ int main(int argc, char* argv[])
 	
 	std::string command;
 	bool mode_command = false;
+	MEVENT mevent;
 	while(true)
 	{	
 		erase();
@@ -312,7 +319,7 @@ int main(int argc, char* argv[])
 
 			break;
 		//=============
-		//copy and pasting
+		//copy and paste
 		case 'c':
 			if(choosed_text)
 				goto enter_text;
@@ -354,11 +361,18 @@ int main(int argc, char* argv[])
 				boxes.emplace_back(copied_box);
 				boxes.back().pos += cursor_pos; 
 				choosed_box = &boxes.back();
+				choosed     = &boxes.back().pos;
 				break;
 			case 2:
 				lines.emplace_back(copied_line);
 				for(vec2& p : lines.back().points)
+				{
+					if(vec2{0, 0} == p)
+						choosed = &p;
+
 					p += cursor_pos;
+
+				}
 				choosed_line = &lines.back();
 				line_point = copied_line_point;
 				break;
@@ -367,6 +381,8 @@ int main(int argc, char* argv[])
 				texts.emplace_back(copied_text);
 				texts.back().pos += cursor_pos; 
 				choosed_text = &texts.back();
+				choosed      = &texts.back().pos;
+				break;
 				break;
 			default:
 				break;
@@ -700,10 +716,83 @@ parse_command:
 					to_move_tl.x = 1'000'000;
 					to_move_tl.y = 1'000'000;
 				}
+
+
+				if("MAL" == command)
+				{
+					vec2 tl = {1'000'000, 1'000'000};
+
+					for(Box const& box : boxes)
+					{
+						if(box.pos.x < tl.x)
+							tl.x = box.pos.x;
+						if(box.pos.y < tl.y)
+							tl.y = box.pos.y;
+					}
+					for(Text const& text : texts)
+					{
+						if(text.pos.x < tl.x)
+							tl.x = text.pos.x;
+						if(text.pos.y < tl.y)
+							tl.y = text.pos.y;
+					}
+					for(Line const& line : lines)
+						for(vec2 const& point : line.points)
+						{
+							if(point.x < tl.x)
+								tl.x = point.x;
+							if(point.y < tl.y)
+								tl.y = point.y;
+						}
+
+
+					for(Box& box : boxes)
+						box.pos += cursor_pos - tl;
+					for(Text& text : texts)
+						text.pos += cursor_pos - tl;
+					for(Line& line : lines)
+						for(vec2& point : line.points)
+							point += cursor_pos - tl;
+				}
 			}
 			
 			mode_command = false;
 			command.clear();
+			break;
+		//-------------
+		//moving by mouse
+		case KEY_MOUSE:
+			if(getmouse(&mevent) != OK)
+				break;
+
+			if(mevent.bstate & BUTTON1_CLICKED)
+				goto choose;
+
+			if(mevent.bstate & BUTTON1_PRESSED)
+			{
+				choosed_box  = nullptr;
+				choosed_line = nullptr;
+				choosed_text = nullptr;
+				choosed      = nullptr;
+				goto choose;
+			}
+
+			if(mevent.bstate & BUTTON1_RELEASED)
+			{
+				choosed_box  = nullptr;
+				choosed_line = nullptr;
+				choosed_text = nullptr;
+				choosed      = nullptr;
+			}
+
+			if(mevent.bstate & REPORT_MOUSE_POSITION)
+			{
+				cursor_pos = {mevent.x, mevent.y};
+
+				if(choosed)
+					*choosed = cursor_pos;
+			}
+
 			break;
 
 		//-------------
@@ -730,6 +819,8 @@ enter_text:
 	}
 end:
 	endwin();
+	// disable reporting of mouse movement 
+	printf("\033[?1003l\n");
 
 	return 0;
 }
