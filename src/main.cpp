@@ -148,8 +148,8 @@ int main(int argc, char* argv[])
 	keypad(stdscr, true);
 	mousemask(BUTTON1_PRESSED 
 	        | BUTTON1_RELEASED
-	        | BUTTON1_CLICKED
 	        | REPORT_MOUSE_POSITION, NULL);
+	mouseinterval(0);
 
 	// Makes the terminal report mouse movement events
 	printf("\033[?1003h\n");
@@ -183,6 +183,7 @@ int main(int argc, char* argv[])
 	
 	std::string command;
 	bool mode_command = false;
+	bool mode_mouse   = false;
 	MEVENT mevent;
 	while(true)
 	{	
@@ -245,16 +246,18 @@ int main(int argc, char* argv[])
 		mvprintw(max_y, 0, command.c_str());
 		attroff(COLOR_PAIR(PAIR_COMM));
 		
-		if(cursor_pos.y < max_y && cursor_pos.x < max_x)
+		if(!mode_mouse)
 		{
-			curs_set(1);
-			move(cursor_pos.y, cursor_pos.x);
+			if(cursor_pos.y < max_y && cursor_pos.x < max_x)
+			{
+				curs_set(1);
+				move(cursor_pos.y, cursor_pos.x);
+			}
+			else
+			{
+				curs_set(0);
+			}
 		}
-		else
-		{
-			curs_set(0);
-		}
-		
 		refresh();
 		
 		int c = getch();
@@ -274,7 +277,9 @@ int main(int argc, char* argv[])
 
 			if(choosed)
 				choosed->y--;
-
+			
+			if(mode_mouse)
+				mode_mouse = false;
 			break;
 		case 'i':
 			if(mode_command)
@@ -288,6 +293,8 @@ int main(int argc, char* argv[])
 			if(choosed)
 				choosed->y++;
 			
+			if(mode_mouse)
+				mode_mouse = false;
 			break;
 		case 'e':
 			if(mode_command)
@@ -303,6 +310,8 @@ int main(int argc, char* argv[])
 			if(choosed)
 				choosed->x--;
 			
+			if(mode_mouse)
+				mode_mouse = false;
 			break;
 		case 'o':
 			if(mode_command)
@@ -317,6 +326,8 @@ int main(int argc, char* argv[])
 			if(choosed)
 				choosed->x++;
 
+			if(mode_mouse)
+				mode_mouse = false;
 			break;
 		//=============
 		//copy and paste
@@ -418,9 +429,7 @@ int main(int argc, char* argv[])
 			}
 			
 			//finally texts
-			//if not needed since if it returns nullptr it is fine 
-			choosed_text = find_Text_With_Pos(texts, cursor_pos);
-			if(choosed_text)
+			if((choosed_text = find_Text_With_Pos(texts, cursor_pos)) != nullptr)
 			{
 				choosed = &choosed_text->pos;
 				break;
@@ -765,8 +774,8 @@ parse_command:
 			if(getmouse(&mevent) != OK)
 				break;
 
-			if(mevent.bstate & BUTTON1_CLICKED)
-				goto choose;
+//			if(mevent.bstate & BUTTON1_CLICKED)
+//				goto choose;
 
 			if(mevent.bstate & BUTTON1_PRESSED)
 			{
@@ -774,8 +783,54 @@ parse_command:
 				choosed_line = nullptr;
 				choosed_text = nullptr;
 				choosed      = nullptr;
-				goto choose;
+
+				//handle offset {0, 0} first 
+				//to get more responsive feel
+				//iterate in 3x3 box around cursor and choose any one that fits 
+
+				if((choosed_box = find_Box_With_Pos(boxes, cursor_pos)) != nullptr)
+				{
+					choosed = &choosed_box->pos;
+					goto mouse_found;
+				}
+				if((choosed_line = find_Line_With_Pos(lines, cursor_pos, line_point)) != nullptr)
+				{
+					choosed = &choosed_line->points[line_point];
+					goto mouse_found;
+				}
+				if((choosed_text = find_Text_With_Pos(texts, cursor_pos)) != nullptr)
+				{
+					choosed = &choosed_text->pos;
+					goto mouse_found;
+				}
+
+				for(int x = -1; x <= 1; x++)
+				for(int y = -1; y <= 1; y++)
+				{
+					vec2 const& npos = cursor_pos + vec2{x, y};
+					//first check for boxes
+					if((choosed_box = find_Box_With_Pos(boxes, npos)) != nullptr)
+					{
+						choosed = &choosed_box->pos;
+						goto mouse_found;
+					}
+					
+					//then line
+					if((choosed_line = find_Line_With_Pos(lines, npos, line_point)) != nullptr)
+					{
+						choosed = &choosed_line->points[line_point];
+						goto mouse_found;
+					}
+					
+					//finally texts
+					if((choosed_text = find_Text_With_Pos(texts, npos)) != nullptr)
+					{
+						choosed = &choosed_text->pos;
+						goto mouse_found;
+					}
+				}
 			}
+mouse_found:
 
 			if(mevent.bstate & BUTTON1_RELEASED)
 			{
@@ -791,6 +846,12 @@ parse_command:
 
 				if(choosed)
 					*choosed = cursor_pos;
+				
+				if(!mode_mouse)
+				{
+					curs_set(0);
+					mode_mouse = true;
+				}
 			}
 
 			break;
