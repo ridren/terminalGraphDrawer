@@ -9,6 +9,9 @@ make program
 ```
 
 usage:
+either mouse or keyboard can be used for controling place of cursor
+to move an object using mouse, press it, drag then release
+
 ```
 COMMAND LINE OPTIONS:
 	-h --help   	prints this help
@@ -27,18 +30,28 @@ IN PROGRAM CONTROL:
 	a           - change line to an arrow and vice versa
 	[ ]         - change box size on y axis
 	{ }         - change box size on x axis
-	c/'         - copy selected object
-	v/\         - paste copied object
+	
+	c '         - copy selected object
+	v \         - paste copied object
+
+	`           - add currently choosed object to list to move
 
 	:           - enter command mode
 	if text is selected, characters are added/removed via regular typing/using backspace
 		keep in mind that cursor is not changing its position while chars are added/removed
+
 COMMANDS:
 	Q           - exits program, UPPERCASE, not lowercase
 	CLEAR       - deletes screen contents
+
 	sFILENAME   - saves current project to FILENAME so it can be loaded later
 	lFILENAME   - loads current project from FILENAME, discarding what is on the screen
 	wFILENAME   - write contents of screen to FILENAME
+
+	MMV         - move list (see "`") to cursor position 
+	MCL         - clear list of to move
+	MAL         - move all to cursor position
+
 	enter       - execute current command
 	escape      - discard current command
 ```

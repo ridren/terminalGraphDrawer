@@ -88,8 +88,10 @@ int main(int argc, char* argv[])
 						 "\t[ ]         - change box size on y axis\n"
 			             "\t{ }         - change box size on x axis\n"
 		
-			             "\tc/'         - copy selected object\n"
-			             "\tv/\\         - paste copied object\n\n"
+			             "\tc '         - copy selected object\n"
+			             "\tv \\         - paste copied object\n\n"
+
+			             "\t`           - add currently choosed object to list to move"
 
 			             "\t:           - enter command mode\n"
 			             
@@ -101,11 +103,14 @@ int main(int argc, char* argv[])
 			             "\tQ           - exits program, UPPERCASE, not lowercase\n"
 			             "\tCLEAR       - deletes screen contents\n"
 
-
 			             "\tsFILENAME   - saves current project to FILENAME so it can be loaded later\n"
 			             "\tlFILENAME   - loads current project from FILENAME, discarding what is on the screen\n"
 			             "\twFILENAME   - write contents of screen to FILENAME\n"
-			             
+
+			             "\tMMV         - move list (see \"`\") to cursor position\n" 
+			             "\tMCL         - clear list of to move\n"
+			             "\tMAL         - move all to cursor position\n"
+
 						 "\tenter       - execute current command\n"
 			             "\tescape      - discard current command\n"
 
@@ -170,7 +175,6 @@ int main(int argc, char* argv[])
 
 	vec2 cursor_pos(0, 0);
 
-	
 	Box copied_box;
 	Line copied_line;
 	int copied_line_point = -1;
